@@ -375,12 +375,12 @@ async function actualizarComparacion() {
   elementos.timeline.value = 0;
 
 
-  elementos.timelineStart.textContent =
-    `${periodoA.inicio} – ${periodoA.fin}`;
+  //elementos.timelineStart.textContent =
+  //  `${periodoA.inicio} – ${periodoA.fin}`;
 
 
-  elementos.timelineEnd.textContent =
-    `${periodoB.inicio} – ${periodoB.fin}`;
+  //elementos.timelineEnd.textContent =
+  //  `${periodoB.inicio} – ${periodoB.fin}`;
 
 
   await mostrarFrameActual();
@@ -945,7 +945,7 @@ async function mostrarFrameActual() {
 
 
     elementos.frameCounter.textContent =
-      `Frame ${frameActual + 1} / ${totalFrames}`;
+      `${fechaA} | ${fechaB}`;
 
 
   } catch (error) {
