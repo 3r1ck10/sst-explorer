@@ -1,0 +1,513 @@
+:root {
+  color-scheme: dark;
+
+  --background: #080d18;
+  --surface: #111a2b;
+  --surface-light: #19253a;
+  --border: #293852;
+  --text: #edf3ff;
+  --muted: #9eacc4;
+  --accent: #56c5e8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(
+      circle at 50% -20%,
+      #1b3554 0,
+      transparent 45%
+    ),
+    var(--background);
+
+  color: var(--text);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 14px 4%;
+
+  border-bottom: 1px solid var(--border);
+
+  background: rgba(8, 13, 24, 0.85);
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 3px;
+
+  font-size: 1.45rem;
+  letter-spacing: 0.02em;
+}
+
+.topbar p {
+  margin-bottom: 0;
+
+  color: var(--muted);
+
+  font-size: 0.82rem;
+}
+
+/* =========================================================
+   CONTROLES
+   ========================================================= */
+
+label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--muted);
+
+  font-size: 0.75rem;
+}
+
+select,
+button {
+  min-height: 34px;
+
+  padding: 6px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface-light);
+
+  color: var(--text);
+
+  font-size: 0.82rem;
+}
+
+select {
+  min-width: 130px;
+}
+
+button {
+  cursor: pointer;
+
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+button:hover {
+  border-color: var(--accent);
+
+  background: #20334d;
+}
+
+.variable-control {
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+   ========================================================= */
+
+main {
+  width: min(1450px, 94%);
+
+  margin: 12px auto 20px;
+}
+
+/* =========================================================
+   SELECTORES DE PERIODOS
+   ========================================================= */
+
+.period-controls {
+  display: flex;
+
+  align-items: end;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
+
+  padding: 10px 14px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 9px;
+
+  background: rgba(17, 26, 43, 0.85);
+}
+
+.period-selector {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.playback-controls {
+  display: flex;
+
+  align-items: end;
+
+  gap: 8px;
+
+  margin-left: auto;
+}
+
+.playback-controls label {
+  margin-bottom: 9px;
+}
+
+/* =========================================================
+   GRID DE MAPAS
+   ========================================================= */
+
+.maps-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+/* =========================================================
+   PANELES
+   ========================================================= */
+
+.map-panel {
+  min-width: 0;
+
+  padding: 10px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 9px;
+
+  background: rgba(17, 26, 43, 0.9);
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   TITULO DE CADA MAPA
+   ========================================================= */
+
+.panel-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+}
+
+.panel-heading h2,
+.info-panel h2 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.panel-heading span {
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   MAPAS
+   ========================================================= */
+
+canvas {
+    width: 100%;
+    height: var(--map-height, 210px);
+    aspect-ratio: 2.5 / 1;
+    background: #07111e;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+.map-size-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 10px;
+}
+
+.map-size-control label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.map-size-control input[type="range"] {
+  width: 130px;
+}
+
+#mapSizeValue {
+  min-width: 55px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+/* =========================================================
+   LEYENDAS
+   ========================================================= */
+
+.legend {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin-top: 6px;
+
+  color: var(--muted);
+
+  font-size: 0.68rem;
+}
+
+.legend-gradient {
+  flex: 1;
+
+  height: 8px;
+
+  border-radius: 3px;
+
+  background:
+    linear-gradient(
+      to right,
+      #000,
+      #fff
+    );
+}
+
+#legendDiff {
+  background:
+    linear-gradient(
+      to right,
+      #2538a8,
+      #65a9e8,
+      #f4f4f4,
+      #f2a05a,
+      #b51e35
+    );
+}
+
+/* =========================================================
+   PANEL INFORMATIVO
+   ========================================================= */
+
+.info-panel {
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 16px;
+}
+
+.info-panel p {
+  max-width: 560px;
+
+  margin: 8px 0;
+
+  color: var(--muted);
+
+  line-height: 1.4;
+
+  font-size: 0.82rem;
+}
+
+.equation {
+  width: fit-content;
+
+  padding: 7px 15px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 7px;
+
+  background: var(--surface-light);
+
+  color: var(--accent);
+
+  font-size: 1.15rem;
+
+  font-weight: bold;
+}
+
+.info-panel .small-note {
+  font-size: 0.75rem;
+}
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+.timeline-panel {
+  margin-top: 10px;
+
+  padding: 9px 14px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 9px;
+
+  background: rgba(17, 26, 43, 0.9);
+}
+
+.timeline-labels {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 5px;
+
+  color: var(--muted);
+
+  font-size: 0.72rem;
+}
+
+input[type="range"] {
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+
+  accent-color: var(--accent);
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+  padding: 12px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--muted);
+
+  text-align: center;
+
+  font-size: 0.7rem;
+}
+
+footer p {
+  margin: 0;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .maps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  canvas {
+    max-height: 240px;
+  }
+
+  .playback-controls {
+    margin-left: 0;
+  }
+}
+
+/* =========================================================
+   MÓVILES
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .topbar {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    padding: 12px 5%;
+  }
+
+  main {
+    width: 94%;
+
+    margin-top: 10px;
+  }
+
+  .period-controls {
+    align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+  .period-selector,
+  .period-selector select,
+  .variable-control,
+  .variable-control select {
+    width: 100%;
+  }
+
+  .playback-controls {
+    width: 100%;
+
+    align-items: end;
+
+    flex-wrap: wrap;
+  }
+
+  .playback-controls select {
+    flex: 1;
+  }
+
+  canvas {
+    max-height: 200px;
+  }
+
+  .panel-heading h2 {
+    font-size: 0.85rem;
+  }
+
+  .panel-heading span {
+    font-size: 0.7rem;
+  }
+}

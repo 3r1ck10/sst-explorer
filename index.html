@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SST Explorer | Comparación climática</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div>
+      <h1>SST Explorer</h1>
+      <p>Explorador de temperatura superficial del mar</p>
+    </div>
+
+    <div class="variable-control">
+      <label for="modoDatos">Variable</label>
+      <select id="modoDatos">
+        <option value="anomaly">Anomalías (°C)</option>
+        <option value="sst">SST (°C)</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <section class="period-controls">
+      <div class="period-selector">
+        <label for="periodoA">Periodo A</label>
+        <select id="periodoA"></select>
+      </div>
+
+      <div class="period-selector">
+        <label for="periodoB">Periodo B</label>
+        <select id="periodoB"></select>
+      </div>
+
+      <div class="map-size-control">
+        <label for="mapSize">Tamaño de mapas</label>
+
+        <input
+               id="mapSize"
+                type="range"
+                min="130"
+                max="360"
+                value="300"
+                step="10"
+        >
+
+        <span id="mapSizeValue">300 px</span>
+        </div>
+
+      <div class="playback-controls">
+        <button id="btnPlay" type="button">▶ Reproducir</button>
+        <label for="velocidad">Velocidad</label>
+        <select id="velocidad">
+          <option value="120">Lenta</option>
+          <option value="80" selected>Normal</option>
+          <option value="50">Rápida</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="maps-grid">
+      <article class="map-panel">
+        <div class="panel-heading">
+          <h2>Periodo A</h2>
+          <span id="fechaA">—</span>
+        </div>
+        <canvas id="canvasA"></canvas>
+        <div class="legend">
+          <span id="minA">—</span>
+          <div class="legend-gradient" id="legendA"></div>
+          <span id="maxA">—</span>
+        </div>
+      </article>
+
+      <article class="map-panel difference-panel">
+        <div class="panel-heading">
+          <h2>Diferencia (B − A)</h2>
+          <span id="fechaDiff">—</span>
+        </div>
+        <canvas id="canvasDiff"></canvas>
+        <div class="legend">
+          <span id="minDiff">—</span>
+          <div class="legend-gradient" id="legendDiff"></div>
+          <span id="maxDiff">—</span>
+        </div>
+      </article>
+
+      <article class="map-panel">
+        <div class="panel-heading">
+          <h2>Periodo B</h2>
+          <span id="fechaB">—</span>
+        </div>
+        <canvas id="canvasB"></canvas>
+        <div class="legend">
+          <span id="minB">—</span>
+          <div class="legend-gradient" id="legendB"></div>
+          <span id="maxB">—</span>
+        </div>
+      </article>
+
+      <article class="map-panel info-panel">
+        <h2>Sobre la comparación</h2>
+        <p>
+          Explora la evolución mensual de la temperatura superficial del mar
+          y compara dos periodos. La diferencia se calcula como:
+        </p>
+        <div class="equation">B − A</div>
+        <p class="small-note">
+          Por otro lado, en el modo de anomalías, los valores representan desviaciones
+          respecto a la climatología mensual de referencia 1980 - 2010.
+        </p>
+      </article>
+    </section>
+
+    <section class="timeline-panel">
+      <div class="timeline-labels">
+        <span id="timelineStart">Inicio</span>
+        <span id="frameCounter">Frame 0</span>
+        <span id="timelineEnd">Fin</span>
+      </div>
+
+      <input
+        id="timeline"
+        type="range"
+        min="0"
+        max="0"
+        value="0"
+        step="1"
+      >
+    </section>
+  </main>
+
+  <footer>
+    <p>SST Explorer · Visualización de datos climáticos</p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

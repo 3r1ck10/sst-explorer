@@ -1,0 +1,5031 @@
+{
+  "variable": "sst",
+  "units": "°C",
+  "climatologia": {
+    "periodo": "1980-2010",
+    "metodo": "monthly_calendar_month_mean",
+    "years_used_by_month": {
+      "1": 31,
+      "2": 31,
+      "3": 31,
+      "4": 31,
+      "5": 31,
+      "6": 31,
+      "7": 31,
+      "8": 31,
+      "9": 31,
+      "10": 31,
+      "11": 31,
+      "12": 31
+    }
+  },
+  "interpolaciones_por_mes": 10,
+  "factor_reduccion": 2,
+  "sst_min": 0.0,
+  "sst_max": 45.0,
+  "anomaly_min": -5.0,
+  "anomaly_max": 5.0,
+  "anio_inicial": 1980,
+  "anio_final": 2026,
+  "anios": {
+    "1980": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1980,
+          "mes": 1,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1980,
+          "mes": 2,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1980,
+          "mes": 3,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1980,
+          "mes": 4,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1980,
+          "mes": 5,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1980,
+          "mes": 6,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1980,
+          "mes": 7,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1980,
+          "mes": 8,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1980,
+          "mes": 9,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1980,
+          "mes": 10,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1980,
+          "mes": 11,
+          "anio_siguiente": 1980,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1980,
+          "mes": 12,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1981": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1981,
+          "mes": 1,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1981,
+          "mes": 2,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1981,
+          "mes": 3,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1981,
+          "mes": 4,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1981,
+          "mes": 5,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1981,
+          "mes": 6,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1981,
+          "mes": 7,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1981,
+          "mes": 8,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1981,
+          "mes": 9,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1981,
+          "mes": 10,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1981,
+          "mes": 11,
+          "anio_siguiente": 1981,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1981,
+          "mes": 12,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1982": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1982,
+          "mes": 1,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1982,
+          "mes": 2,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1982,
+          "mes": 3,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1982,
+          "mes": 4,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1982,
+          "mes": 5,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1982,
+          "mes": 6,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1982,
+          "mes": 7,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1982,
+          "mes": 8,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1982,
+          "mes": 9,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1982,
+          "mes": 10,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1982,
+          "mes": 11,
+          "anio_siguiente": 1982,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1982,
+          "mes": 12,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1983": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1983,
+          "mes": 1,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1983,
+          "mes": 2,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1983,
+          "mes": 3,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1983,
+          "mes": 4,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1983,
+          "mes": 5,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1983,
+          "mes": 6,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1983,
+          "mes": 7,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1983,
+          "mes": 8,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1983,
+          "mes": 9,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1983,
+          "mes": 10,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1983,
+          "mes": 11,
+          "anio_siguiente": 1983,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1983,
+          "mes": 12,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1984": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1984,
+          "mes": 1,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1984,
+          "mes": 2,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1984,
+          "mes": 3,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1984,
+          "mes": 4,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1984,
+          "mes": 5,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1984,
+          "mes": 6,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1984,
+          "mes": 7,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1984,
+          "mes": 8,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1984,
+          "mes": 9,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1984,
+          "mes": 10,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1984,
+          "mes": 11,
+          "anio_siguiente": 1984,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1984,
+          "mes": 12,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1985": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1985,
+          "mes": 1,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1985,
+          "mes": 2,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1985,
+          "mes": 3,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1985,
+          "mes": 4,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1985,
+          "mes": 5,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1985,
+          "mes": 6,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1985,
+          "mes": 7,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1985,
+          "mes": 8,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1985,
+          "mes": 9,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1985,
+          "mes": 10,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1985,
+          "mes": 11,
+          "anio_siguiente": 1985,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1985,
+          "mes": 12,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1986": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1986,
+          "mes": 1,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1986,
+          "mes": 2,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1986,
+          "mes": 3,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1986,
+          "mes": 4,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1986,
+          "mes": 5,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1986,
+          "mes": 6,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1986,
+          "mes": 7,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1986,
+          "mes": 8,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1986,
+          "mes": 9,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1986,
+          "mes": 10,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1986,
+          "mes": 11,
+          "anio_siguiente": 1986,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1986,
+          "mes": 12,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1987": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1987,
+          "mes": 1,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1987,
+          "mes": 2,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1987,
+          "mes": 3,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1987,
+          "mes": 4,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1987,
+          "mes": 5,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1987,
+          "mes": 6,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1987,
+          "mes": 7,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1987,
+          "mes": 8,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1987,
+          "mes": 9,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1987,
+          "mes": 10,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1987,
+          "mes": 11,
+          "anio_siguiente": 1987,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1987,
+          "mes": 12,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1988": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1988,
+          "mes": 1,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1988,
+          "mes": 2,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1988,
+          "mes": 3,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1988,
+          "mes": 4,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1988,
+          "mes": 5,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1988,
+          "mes": 6,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1988,
+          "mes": 7,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1988,
+          "mes": 8,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1988,
+          "mes": 9,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1988,
+          "mes": 10,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1988,
+          "mes": 11,
+          "anio_siguiente": 1988,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1988,
+          "mes": 12,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1989": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1989,
+          "mes": 1,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1989,
+          "mes": 2,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1989,
+          "mes": 3,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1989,
+          "mes": 4,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1989,
+          "mes": 5,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1989,
+          "mes": 6,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1989,
+          "mes": 7,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1989,
+          "mes": 8,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1989,
+          "mes": 9,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1989,
+          "mes": 10,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1989,
+          "mes": 11,
+          "anio_siguiente": 1989,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1989,
+          "mes": 12,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1990": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1990,
+          "mes": 1,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1990,
+          "mes": 2,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1990,
+          "mes": 3,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1990,
+          "mes": 4,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1990,
+          "mes": 5,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1990,
+          "mes": 6,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1990,
+          "mes": 7,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1990,
+          "mes": 8,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1990,
+          "mes": 9,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1990,
+          "mes": 10,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1990,
+          "mes": 11,
+          "anio_siguiente": 1990,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1990,
+          "mes": 12,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1991": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1991,
+          "mes": 1,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1991,
+          "mes": 2,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1991,
+          "mes": 3,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1991,
+          "mes": 4,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1991,
+          "mes": 5,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1991,
+          "mes": 6,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1991,
+          "mes": 7,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1991,
+          "mes": 8,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1991,
+          "mes": 9,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1991,
+          "mes": 10,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1991,
+          "mes": 11,
+          "anio_siguiente": 1991,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1991,
+          "mes": 12,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1992": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1992,
+          "mes": 1,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1992,
+          "mes": 2,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1992,
+          "mes": 3,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1992,
+          "mes": 4,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1992,
+          "mes": 5,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1992,
+          "mes": 6,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1992,
+          "mes": 7,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1992,
+          "mes": 8,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1992,
+          "mes": 9,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1992,
+          "mes": 10,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1992,
+          "mes": 11,
+          "anio_siguiente": 1992,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1992,
+          "mes": 12,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1993": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1993,
+          "mes": 1,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1993,
+          "mes": 2,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1993,
+          "mes": 3,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1993,
+          "mes": 4,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1993,
+          "mes": 5,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1993,
+          "mes": 6,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1993,
+          "mes": 7,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1993,
+          "mes": 8,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1993,
+          "mes": 9,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1993,
+          "mes": 10,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1993,
+          "mes": 11,
+          "anio_siguiente": 1993,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1993,
+          "mes": 12,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1994": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1994,
+          "mes": 1,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1994,
+          "mes": 2,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1994,
+          "mes": 3,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1994,
+          "mes": 4,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1994,
+          "mes": 5,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1994,
+          "mes": 6,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1994,
+          "mes": 7,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1994,
+          "mes": 8,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1994,
+          "mes": 9,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1994,
+          "mes": 10,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1994,
+          "mes": 11,
+          "anio_siguiente": 1994,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1994,
+          "mes": 12,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1995": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1995,
+          "mes": 1,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1995,
+          "mes": 2,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1995,
+          "mes": 3,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1995,
+          "mes": 4,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1995,
+          "mes": 5,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1995,
+          "mes": 6,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1995,
+          "mes": 7,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1995,
+          "mes": 8,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1995,
+          "mes": 9,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1995,
+          "mes": 10,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1995,
+          "mes": 11,
+          "anio_siguiente": 1995,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1995,
+          "mes": 12,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1996": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1996,
+          "mes": 1,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1996,
+          "mes": 2,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1996,
+          "mes": 3,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1996,
+          "mes": 4,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1996,
+          "mes": 5,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1996,
+          "mes": 6,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1996,
+          "mes": 7,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1996,
+          "mes": 8,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1996,
+          "mes": 9,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1996,
+          "mes": 10,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1996,
+          "mes": 11,
+          "anio_siguiente": 1996,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1996,
+          "mes": 12,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1997": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1997,
+          "mes": 1,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1997,
+          "mes": 2,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1997,
+          "mes": 3,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1997,
+          "mes": 4,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1997,
+          "mes": 5,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1997,
+          "mes": 6,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1997,
+          "mes": 7,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1997,
+          "mes": 8,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1997,
+          "mes": 9,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1997,
+          "mes": 10,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1997,
+          "mes": 11,
+          "anio_siguiente": 1997,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1997,
+          "mes": 12,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1998": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1998,
+          "mes": 1,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1998,
+          "mes": 2,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1998,
+          "mes": 3,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1998,
+          "mes": 4,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1998,
+          "mes": 5,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1998,
+          "mes": 6,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1998,
+          "mes": 7,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1998,
+          "mes": 8,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1998,
+          "mes": 9,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1998,
+          "mes": 10,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1998,
+          "mes": 11,
+          "anio_siguiente": 1998,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1998,
+          "mes": 12,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "1999": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 1999,
+          "mes": 1,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 1999,
+          "mes": 2,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 1999,
+          "mes": 3,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 1999,
+          "mes": 4,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 1999,
+          "mes": 5,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 1999,
+          "mes": 6,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 1999,
+          "mes": 7,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 1999,
+          "mes": 8,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 1999,
+          "mes": 9,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 1999,
+          "mes": 10,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 1999,
+          "mes": 11,
+          "anio_siguiente": 1999,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 1999,
+          "mes": 12,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2000": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2000,
+          "mes": 1,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2000,
+          "mes": 2,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2000,
+          "mes": 3,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2000,
+          "mes": 4,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2000,
+          "mes": 5,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2000,
+          "mes": 6,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2000,
+          "mes": 7,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2000,
+          "mes": 8,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2000,
+          "mes": 9,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2000,
+          "mes": 10,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2000,
+          "mes": 11,
+          "anio_siguiente": 2000,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2000,
+          "mes": 12,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2001": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2001,
+          "mes": 1,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2001,
+          "mes": 2,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2001,
+          "mes": 3,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2001,
+          "mes": 4,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2001,
+          "mes": 5,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2001,
+          "mes": 6,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2001,
+          "mes": 7,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2001,
+          "mes": 8,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2001,
+          "mes": 9,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2001,
+          "mes": 10,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2001,
+          "mes": 11,
+          "anio_siguiente": 2001,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2001,
+          "mes": 12,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2002": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2002,
+          "mes": 1,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2002,
+          "mes": 2,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2002,
+          "mes": 3,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2002,
+          "mes": 4,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2002,
+          "mes": 5,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2002,
+          "mes": 6,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2002,
+          "mes": 7,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2002,
+          "mes": 8,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2002,
+          "mes": 9,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2002,
+          "mes": 10,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2002,
+          "mes": 11,
+          "anio_siguiente": 2002,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2002,
+          "mes": 12,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2003": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2003,
+          "mes": 1,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2003,
+          "mes": 2,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2003,
+          "mes": 3,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2003,
+          "mes": 4,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2003,
+          "mes": 5,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2003,
+          "mes": 6,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2003,
+          "mes": 7,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2003,
+          "mes": 8,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2003,
+          "mes": 9,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2003,
+          "mes": 10,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2003,
+          "mes": 11,
+          "anio_siguiente": 2003,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2003,
+          "mes": 12,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2004": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2004,
+          "mes": 1,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2004,
+          "mes": 2,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2004,
+          "mes": 3,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2004,
+          "mes": 4,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2004,
+          "mes": 5,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2004,
+          "mes": 6,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2004,
+          "mes": 7,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2004,
+          "mes": 8,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2004,
+          "mes": 9,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2004,
+          "mes": 10,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2004,
+          "mes": 11,
+          "anio_siguiente": 2004,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2004,
+          "mes": 12,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2005": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2005,
+          "mes": 1,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2005,
+          "mes": 2,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2005,
+          "mes": 3,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2005,
+          "mes": 4,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2005,
+          "mes": 5,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2005,
+          "mes": 6,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2005,
+          "mes": 7,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2005,
+          "mes": 8,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2005,
+          "mes": 9,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2005,
+          "mes": 10,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2005,
+          "mes": 11,
+          "anio_siguiente": 2005,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2005,
+          "mes": 12,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2006": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2006,
+          "mes": 1,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2006,
+          "mes": 2,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2006,
+          "mes": 3,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2006,
+          "mes": 4,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2006,
+          "mes": 5,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2006,
+          "mes": 6,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2006,
+          "mes": 7,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2006,
+          "mes": 8,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2006,
+          "mes": 9,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2006,
+          "mes": 10,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2006,
+          "mes": 11,
+          "anio_siguiente": 2006,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2006,
+          "mes": 12,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2007": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2007,
+          "mes": 1,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2007,
+          "mes": 2,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2007,
+          "mes": 3,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2007,
+          "mes": 4,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2007,
+          "mes": 5,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2007,
+          "mes": 6,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2007,
+          "mes": 7,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2007,
+          "mes": 8,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2007,
+          "mes": 9,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2007,
+          "mes": 10,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2007,
+          "mes": 11,
+          "anio_siguiente": 2007,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2007,
+          "mes": 12,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2008": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2008,
+          "mes": 1,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2008,
+          "mes": 2,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2008,
+          "mes": 3,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2008,
+          "mes": 4,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2008,
+          "mes": 5,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2008,
+          "mes": 6,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2008,
+          "mes": 7,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2008,
+          "mes": 8,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2008,
+          "mes": 9,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2008,
+          "mes": 10,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2008,
+          "mes": 11,
+          "anio_siguiente": 2008,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2008,
+          "mes": 12,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2009": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2009,
+          "mes": 1,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2009,
+          "mes": 2,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2009,
+          "mes": 3,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2009,
+          "mes": 4,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2009,
+          "mes": 5,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2009,
+          "mes": 6,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2009,
+          "mes": 7,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2009,
+          "mes": 8,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2009,
+          "mes": 9,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2009,
+          "mes": 10,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2009,
+          "mes": 11,
+          "anio_siguiente": 2009,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2009,
+          "mes": 12,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2010": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2010,
+          "mes": 1,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2010,
+          "mes": 2,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2010,
+          "mes": 3,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2010,
+          "mes": 4,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2010,
+          "mes": 5,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2010,
+          "mes": 6,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2010,
+          "mes": 7,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2010,
+          "mes": 8,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2010,
+          "mes": 9,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2010,
+          "mes": 10,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2010,
+          "mes": 11,
+          "anio_siguiente": 2010,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2010,
+          "mes": 12,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2011": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2011,
+          "mes": 1,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2011,
+          "mes": 2,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2011,
+          "mes": 3,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2011,
+          "mes": 4,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2011,
+          "mes": 5,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2011,
+          "mes": 6,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2011,
+          "mes": 7,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2011,
+          "mes": 8,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2011,
+          "mes": 9,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2011,
+          "mes": 10,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2011,
+          "mes": 11,
+          "anio_siguiente": 2011,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2011,
+          "mes": 12,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2012": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2012,
+          "mes": 1,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2012,
+          "mes": 2,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2012,
+          "mes": 3,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2012,
+          "mes": 4,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2012,
+          "mes": 5,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2012,
+          "mes": 6,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2012,
+          "mes": 7,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2012,
+          "mes": 8,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2012,
+          "mes": 9,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2012,
+          "mes": 10,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2012,
+          "mes": 11,
+          "anio_siguiente": 2012,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2012,
+          "mes": 12,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2013": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2013,
+          "mes": 1,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2013,
+          "mes": 2,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2013,
+          "mes": 3,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2013,
+          "mes": 4,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2013,
+          "mes": 5,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2013,
+          "mes": 6,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2013,
+          "mes": 7,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2013,
+          "mes": 8,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2013,
+          "mes": 9,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2013,
+          "mes": 10,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2013,
+          "mes": 11,
+          "anio_siguiente": 2013,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2013,
+          "mes": 12,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2014": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2014,
+          "mes": 1,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2014,
+          "mes": 2,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2014,
+          "mes": 3,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2014,
+          "mes": 4,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2014,
+          "mes": 5,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2014,
+          "mes": 6,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2014,
+          "mes": 7,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2014,
+          "mes": 8,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2014,
+          "mes": 9,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2014,
+          "mes": 10,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2014,
+          "mes": 11,
+          "anio_siguiente": 2014,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2014,
+          "mes": 12,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2015": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2015,
+          "mes": 1,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2015,
+          "mes": 2,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2015,
+          "mes": 3,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2015,
+          "mes": 4,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2015,
+          "mes": 5,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2015,
+          "mes": 6,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2015,
+          "mes": 7,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2015,
+          "mes": 8,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2015,
+          "mes": 9,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2015,
+          "mes": 10,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2015,
+          "mes": 11,
+          "anio_siguiente": 2015,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2015,
+          "mes": 12,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2016": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2016,
+          "mes": 1,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2016,
+          "mes": 2,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2016,
+          "mes": 3,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2016,
+          "mes": 4,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2016,
+          "mes": 5,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2016,
+          "mes": 6,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2016,
+          "mes": 7,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2016,
+          "mes": 8,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2016,
+          "mes": 9,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2016,
+          "mes": 10,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2016,
+          "mes": 11,
+          "anio_siguiente": 2016,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2016,
+          "mes": 12,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2017": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2017,
+          "mes": 1,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2017,
+          "mes": 2,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2017,
+          "mes": 3,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2017,
+          "mes": 4,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2017,
+          "mes": 5,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2017,
+          "mes": 6,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2017,
+          "mes": 7,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2017,
+          "mes": 8,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2017,
+          "mes": 9,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2017,
+          "mes": 10,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2017,
+          "mes": 11,
+          "anio_siguiente": 2017,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2017,
+          "mes": 12,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2018": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2018,
+          "mes": 1,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2018,
+          "mes": 2,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2018,
+          "mes": 3,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2018,
+          "mes": 4,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2018,
+          "mes": 5,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2018,
+          "mes": 6,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2018,
+          "mes": 7,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2018,
+          "mes": 8,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2018,
+          "mes": 9,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2018,
+          "mes": 10,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2018,
+          "mes": 11,
+          "anio_siguiente": 2018,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2018,
+          "mes": 12,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2019": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2019,
+          "mes": 1,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2019,
+          "mes": 2,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2019,
+          "mes": 3,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2019,
+          "mes": 4,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2019,
+          "mes": 5,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2019,
+          "mes": 6,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2019,
+          "mes": 7,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2019,
+          "mes": 8,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2019,
+          "mes": 9,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2019,
+          "mes": 10,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2019,
+          "mes": 11,
+          "anio_siguiente": 2019,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2019,
+          "mes": 12,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2020": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2020,
+          "mes": 1,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2020,
+          "mes": 2,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2020,
+          "mes": 3,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2020,
+          "mes": 4,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2020,
+          "mes": 5,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2020,
+          "mes": 6,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2020,
+          "mes": 7,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2020,
+          "mes": 8,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2020,
+          "mes": 9,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2020,
+          "mes": 10,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2020,
+          "mes": 11,
+          "anio_siguiente": 2020,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2020,
+          "mes": 12,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2021": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2021,
+          "mes": 1,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2021,
+          "mes": 2,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2021,
+          "mes": 3,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2021,
+          "mes": 4,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2021,
+          "mes": 5,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2021,
+          "mes": 6,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2021,
+          "mes": 7,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2021,
+          "mes": 8,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2021,
+          "mes": 9,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2021,
+          "mes": 10,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2021,
+          "mes": 11,
+          "anio_siguiente": 2021,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2021,
+          "mes": 12,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2022": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2022,
+          "mes": 1,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2022,
+          "mes": 2,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2022,
+          "mes": 3,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2022,
+          "mes": 4,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2022,
+          "mes": 5,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2022,
+          "mes": 6,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2022,
+          "mes": 7,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2022,
+          "mes": 8,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2022,
+          "mes": 9,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2022,
+          "mes": 10,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2022,
+          "mes": 11,
+          "anio_siguiente": 2022,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2022,
+          "mes": 12,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2023": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2023,
+          "mes": 1,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2023,
+          "mes": 2,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2023,
+          "mes": 3,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2023,
+          "mes": 4,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2023,
+          "mes": 5,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2023,
+          "mes": 6,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2023,
+          "mes": 7,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2023,
+          "mes": 8,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2023,
+          "mes": 9,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2023,
+          "mes": 10,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2023,
+          "mes": 11,
+          "anio_siguiente": 2023,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2023,
+          "mes": 12,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2024": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2024,
+          "mes": 1,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2024,
+          "mes": 2,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2024,
+          "mes": 3,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2024,
+          "mes": 4,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2024,
+          "mes": 5,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2024,
+          "mes": 6,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2024,
+          "mes": 7,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2024,
+          "mes": 8,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2024,
+          "mes": 9,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2024,
+          "mes": 10,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2024,
+          "mes": 11,
+          "anio_siguiente": 2024,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2024,
+          "mes": 12,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2025": {
+      "sst": {
+        "frames": 120
+      },
+      "anomaly": {
+        "frames": 120
+      },
+      "ultimo_mes_disponible": 12,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2025,
+          "mes": 1,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2025,
+          "mes": 2,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2025,
+          "mes": 3,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2025,
+          "mes": 4,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2025,
+          "mes": 5,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2025,
+          "mes": 6,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2025,
+          "mes": 7,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2025,
+          "mes": 8,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2025,
+          "mes": 9,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 10,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 90,
+          "anio": 2025,
+          "mes": 10,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 11,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 100,
+          "anio": 2025,
+          "mes": 11,
+          "anio_siguiente": 2025,
+          "mes_siguiente": 12,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 110,
+          "anio": 2025,
+          "mes": 12,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 1,
+          "tipo": "interpolacion"
+        }
+      ]
+    },
+    "2026": {
+      "sst": {
+        "frames": 71
+      },
+      "anomaly": {
+        "frames": 71
+      },
+      "ultimo_mes_disponible": 8,
+      "meses": [
+        {
+          "frame_inicial": 0,
+          "anio": 2026,
+          "mes": 1,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 2,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 10,
+          "anio": 2026,
+          "mes": 2,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 3,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 20,
+          "anio": 2026,
+          "mes": 3,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 4,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 30,
+          "anio": 2026,
+          "mes": 4,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 5,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 40,
+          "anio": 2026,
+          "mes": 5,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 6,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 50,
+          "anio": 2026,
+          "mes": 6,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 7,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 60,
+          "anio": 2026,
+          "mes": 7,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 8,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 70,
+          "anio": 2026,
+          "mes": 8,
+          "anio_siguiente": null,
+          "mes_siguiente": null,
+          "tipo": "final"
+        }
+      ]
+    }
+  },
+  "width": 720,
+  "height": 361
+}
