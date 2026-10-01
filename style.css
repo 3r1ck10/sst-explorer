@@ -437,10 +437,34 @@ footer p {
    RESPONSIVE
    ========================================================= */
 
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
 @media (max-width: 900px) {
 
   .maps-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Orden vertical:
+     A → B → Diferencia → Info
+  */
+
+  .maps-grid .map-panel:nth-child(1) {
+    order: 1;
+  }
+
+  .maps-grid .map-panel:nth-child(3) {
+    order: 2;
+  }
+
+  .maps-grid .map-panel:nth-child(2) {
+    order: 3;
+  }
+
+  .maps-grid .map-panel:nth-child(4) {
+    order: 4;
   }
 
   canvas {
