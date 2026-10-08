@@ -4952,12 +4952,12 @@
     },
     "2026": {
       "sst": {
-        "frames": 71
+        "frames": 81
       },
       "anomaly": {
-        "frames": 71
+        "frames": 81
       },
-      "ultimo_mes_disponible": 8,
+      "ultimo_mes_disponible": 9,
       "meses": [
         {
           "frame_inicial": 0,
@@ -5019,6 +5019,14 @@
           "frame_inicial": 70,
           "anio": 2026,
           "mes": 8,
+          "anio_siguiente": 2026,
+          "mes_siguiente": 9,
+          "tipo": "interpolacion"
+        },
+        {
+          "frame_inicial": 80,
+          "anio": 2026,
+          "mes": 9,
           "anio_siguiente": null,
           "mes_siguiente": null,
           "tipo": "final"
