@@ -2926,6 +2926,26 @@ async function actualizarTooltip(evento, canvas) {
 function configurarTooltip() {
   const tooltip = elementos.tooltipDatos;
 
+  // En móviles, cerrar el tooltip al tocar fuera de los mapas.
+  document.addEventListener("pointerdown", evento => {
+    if (!window.matchMedia("(pointer: coarse)").matches) return;
+    if (elementos.tooltipDatos.hidden) return;
+
+    // Si el toque fue en alguno de los mapas, mantenerlo.
+    const mapa = evento.target.closest(
+      "#canvasA, #canvasB, #windA, #windB"
+    );
+
+    if (mapa) return;
+
+    // Si el toque fue fuera de los mapas, cerrar el tooltip.
+    ultimoPunteroTooltip = null;
+    canvasTooltipActivo = null;
+    solicitudTooltip++;
+
+    elementos.tooltipDatos.hidden = true;
+  });
+
   [elementos.canvasA, elementos.canvasB].forEach(canvas => {
 
     // Detectar movimiento del mouse o del dedo.
