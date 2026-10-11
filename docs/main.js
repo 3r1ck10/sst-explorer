@@ -2073,218 +2073,304 @@ function muestrearViento(
 // INTEGRAR UNA STREAMLINE
 // ------------------------------------------------------------
 
-function integrarStreamline(
-  campo,
-  xInicial,
-  yInicial,
-  direccion
-  ) {
+/* ==========================================================
+   STREAMLINES: INTEGRACIÓN RK4 + CONTROL DE DENSIDAD
+   ========================================================== */
 
-  const puntos = [];
+// Tamaño de cada celda de ocupación, en píxeles de datos.
+// Aumentarlo separa más las líneas.
+const STREAM_CELL_SIZE = 3.5;
 
-  let x =
-    xInicial;
+// Distancia de seguridad alrededor de cada trayectoria.
+// Se expresa en celdas de ocupación.
+const STREAM_BUFFER_CELLS =0;
 
-  let y =
-    yInicial;
+// Paso de integración en coordenadas del campo.
+const STREAM_STEP = 0.5;
 
-
-  const pasos =
-    45;
-
-  const paso =
-    0.7;
+// Longitud máxima de integración.
+const STREAM_MAX_STEPS = 600;
 
 
-  for (
-    let i = 0;
-    i < pasos;
-    i++
-  ) {
+/* ----------------------------------------------------------
+   DIRECCIÓN LOCAL DEL VIENTO
+   ---------------------------------------------------------- */
 
-    const viento =
-      muestrearViento(
-        campo,
-        x,
-        y
-      );
+function obtenerDireccionViento(campo, x, y) {
+    const viento = muestrearViento(campo, x, y);
 
+    if (!viento) return null;
 
-    if (!viento) {
-      break;
-    }
+    const lat = 90 - (y / (campo.height - 1)) * 180;
 
-
-    // Latitud aproximada.
-    const lat =
-      90 -
-      (
-        y /
-        (campo.height - 1)
-      ) *
-      180;
-
-
-    // Corrección aproximada
-    // de la convergencia de meridianos.
-    const cosLat =
-      Math.max(
+    const cosLat = Math.max(
         0.15,
-        Math.cos(
-          lat *
-          Math.PI /
-          180
-        )
-      );
+        Math.cos(lat * Math.PI / 180)
+    );
 
+    // U positiva: este.
+    // V positiva: norte; las filas aumentan hacia el sur.
+    const dx = viento.u / cosLat;
+    const dy = -viento.v;
 
-    let dx =
-      viento.u /
-      cosLat;
+    const magnitud = Math.hypot(dx, dy);
 
-    let dy =
-      -viento.v;
-
-
-    const magnitud =
-      Math.sqrt(
-        dx * dx +
-        dy * dy
-      );
-
-
-    if (
-      !Number.isFinite(magnitud) ||
-      magnitud < 0.00001
-    ) {
-
-      break;
+    if (!Number.isFinite(magnitud) || magnitud < 1e-8) {
+        return null;
     }
 
-
-    dx /=
-      magnitud;
-
-    dy /=
-      magnitud;
-
-
-    puntos.push({
-      x,
-      y
-    });
-
-
-    x +=
-      dx *
-      paso *
-      direccion;
-
-    y +=
-      dy *
-      paso *
-      direccion;
-
-
-    if (
-      y < 0 ||
-      y >= campo.height
-    ) {
-
-      break;
-    }
-  }
-
-
-  return puntos;
+    return {
+        x: dx / magnitud,
+        y: dy / magnitud
+    };
 }
 
 
-// ------------------------------------------------------------
-// GENERAR SEMILLAS
-// ------------------------------------------------------------
+/* ----------------------------------------------------------
+   DERIVADA PARA RK4
+   ---------------------------------------------------------- */
 
-function generarSemillas(
-  campo
-  ) {
+function evaluarDireccion(campo, x, y, direccion) {
+    const d = obtenerDireccionViento(campo, x, y);
 
-  const semillas = [];
+    if (!d) return null;
 
-
-  // Aproximadamente 250 semillas.
-  const columnas = 26;
-  const filas = 11;
-
-
-  const dx =
-    campo.width /
-    columnas;
-
-  const dy =
-    campo.height /
-    filas;
+    return {
+        x: d.x * direccion,
+        y: d.y * direccion
+    };
+}
 
 
-  for (
-    let j = 0;
-    j < filas;
-    j++
-  ) {
+/* ----------------------------------------------------------
+   CUADRÍCULA DE OCUPACIÓN ESPACIAL
+   ---------------------------------------------------------- */
+
+function crearOcupacionStreamlines(campo) {
+    const cellSize = STREAM_CELL_SIZE;
+
+    const columnas = Math.ceil(campo.width / cellSize);
+    const filas = Math.ceil(campo.height / cellSize);
+
+    return {
+        columnas,
+        filas,
+        cellSize,
+        celdas: new Uint8Array(columnas * filas)
+    };
+}
+
+
+function obtenerCeldaStreamline(ocupacion, x, y) {
+    const { columnas, filas, cellSize } = ocupacion;
+
+    // La longitud se repite horizontalmente.
+    x = ((x % (columnas * cellSize)) +
+         columnas * cellSize) %
+         (columnas * cellSize);
+
+    const cx = Math.floor(x / cellSize);
+    const cy = Math.floor(y / cellSize);
+
+    if (cy < 0 || cy >= filas) return null;
+
+    return {
+        x: cx,
+        y: cy,
+        indice: cy * columnas + cx
+    };
+}
+
+
+function celdaOcupadaCerca(ocupacion, x, y) {
+    const celda = obtenerCeldaStreamline(
+        ocupacion, x, y
+    );
+
+    if (!celda) return true;
+
+    const { columnas, filas, celdas } = ocupacion;
 
     for (
-      let i = 0;
-      i < columnas;
-      i++
+        let oy = -STREAM_BUFFER_CELLS;
+        oy <= STREAM_BUFFER_CELLS;
+        oy++
     ) {
+        for (
+            let ox = -STREAM_BUFFER_CELLS;
+            ox <= STREAM_BUFFER_CELLS;
+            ox++
+        ) {
+            const cy = celda.y + oy;
 
-      const x =
-        (i + 0.5) *
-        dx;
+            if (cy < 0 || cy >= filas) continue;
 
-      const y =
-        (j + 0.5) *
-        dy;
+            const cx =
+                (celda.x + ox + columnas) % columnas;
 
-
-      const viento =
-        muestrearViento(
-          campo,
-          x,
-          y
-        );
-
-
-      if (!viento) {
-        continue;
-      }
-
-
-      const velocidad =
-        Math.sqrt(
-          viento.u *
-          viento.u +
-          viento.v *
-          viento.v
-        );
-
-
-      if (
-        velocidad < 0.05
-      ) {
-
-        continue;
-      }
-
-
-      semillas.push({
-        x,
-        y
-      });
+            if (celdas[cy * columnas + cx]) {
+                return true;
+            }
+        }
     }
-  }
+
+    return false;
+}
 
 
-  return semillas;
+function marcarOcupacionStreamline(
+    ocupacion,
+    puntos
+) {
+    const { columnas, filas, celdas } = ocupacion;
+
+    for (const punto of puntos) {
+        const celda = obtenerCeldaStreamline(
+            ocupacion,
+            punto.x,
+            punto.y
+        );
+
+        if (!celda) continue;
+
+        for (
+            let oy = -STREAM_BUFFER_CELLS;
+            oy <= STREAM_BUFFER_CELLS;
+            oy++
+        ) {
+            for (
+                let ox = -STREAM_BUFFER_CELLS;
+                ox <= STREAM_BUFFER_CELLS;
+                ox++
+            ) {
+                const cy = celda.y + oy;
+
+                if (cy < 0 || cy >= filas) continue;
+
+                const cx =
+                    (celda.x + ox + columnas) % columnas;
+
+                celdas[cy * columnas + cx] = 1;
+            }
+        }
+    }
+}
+
+
+/* ----------------------------------------------------------
+   INTEGRAR UNA STREAMLINE CON RUNGE-KUTTA DE CUARTO ORDEN
+   ---------------------------------------------------------- */
+
+function integrarStreamline(
+    campo,
+    xInicial,
+    yInicial,
+    direccion,
+    ocupacion = null
+) {
+    const puntos = [];
+
+    let x = xInicial;
+    let y = yInicial;
+
+    const paso = STREAM_STEP;
+
+    for (let i = 0; i < STREAM_MAX_STEPS; i++) {
+        // Evitar salir por los polos.
+        if (y < 0 || y >= campo.height - 1) break;
+
+        // Evitar entrar en una región ya ocupada por otra línea.
+        // La comprobación empieza después de salir de la semilla.
+        if (
+            ocupacion &&
+            i > 0 &&
+            celdaOcupadaCerca(ocupacion, x, y)
+        ) {
+            break;
+        }
+
+        const k1 = evaluarDireccion(
+            campo, x, y, direccion
+        );
+
+        if (!k1) break;
+
+        const k2 = evaluarDireccion(
+            campo,
+            x + k1.x * paso * 0.5,
+            y + k1.y * paso * 0.5,
+            direccion
+        );
+
+        if (!k2) break;
+
+        const k3 = evaluarDireccion(
+            campo,
+            x + k2.x * paso * 0.5,
+            y + k2.y * paso * 0.5,
+            direccion
+        );
+
+        if (!k3) break;
+
+        const k4 = evaluarDireccion(
+            campo,
+            x + k3.x * paso,
+            y + k3.y * paso,
+            direccion
+        );
+
+        if (!k4) break;
+
+        puntos.push({ x, y });
+
+        x += paso * (
+            k1.x + 2 * k2.x + 2 * k3.x + k4.x
+        ) / 6;
+
+        y += paso * (
+            k1.y + 2 * k2.y + 2 * k3.y + k4.y
+        ) / 6;
+
+        // Mantener longitud dentro del dominio longitudinal.
+        x = ((x % campo.width) + campo.width) % campo.width;
+    }
+
+    return puntos;
+}
+
+
+/* ----------------------------------------------------------
+   GENERAR SEMILLAS CANDIDATAS
+   ---------------------------------------------------------- */
+
+function generarSemillas(campo) {
+    const semillas = [];
+
+    const columnas = 20;
+    const filas = 15;
+
+    const dx = campo.width / columnas;
+    const dy = campo.height / filas;
+
+    for (let j = 0; j < filas; j++) {
+        for (let i = 0; i < columnas; i++) {
+            const x = (i + 0.5) * dx;
+            const y = (j + 0.5) * dy;
+
+            const viento = muestrearViento(campo, x, y);
+
+            if (!viento) continue;
+
+            if (Math.hypot(viento.u, viento.v) < 0.05) {
+                continue;
+            }
+
+            semillas.push({ x, y });
+        }
+    }
+
+    return semillas;
 }
 
 /* ==========================================================
@@ -2346,95 +2432,103 @@ function dibujarFlechaViento(
    DIBUJAR STREAMLINES COLOREADAS POR VELOCIDAD
    ========================================================== */
 
+
 function dibujarStreamlines(canvas, campo) {
     if (!canvas || !campo) return;
 
-    // Resolución visual 3 veces mayor que los datos
     const escala = 2;
 
-    canvas.width = campo.width*escala;
-    canvas.height = campo.height*escala;
+    canvas.width = campo.width * escala;
+    canvas.height = campo.height * escala;
 
     const ctx = canvas.getContext("2d");
 
-    // Transformar coordenadas de datos a píxeles de alta resolución
     ctx.setTransform(escala, 0, 0, escala, 0, 0);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, campo.width, campo.height);
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
     const semillas = generarSemillas(campo);
+    const ocupacion = crearOcupacionStreamlines(campo);
 
     for (const semilla of semillas) {
+        // No iniciar otra línea en una región congestionada.
+        if (
+            celdaOcupadaCerca(
+                ocupacion,
+                semilla.x,
+                semilla.y
+            )
+        ) {
+            continue;
+        }
+
+        // Integrar hacia adelante y hacia atrás.
         const adelante = integrarStreamline(
             campo,
             semilla.x,
             semilla.y,
-            1
+            1,
+            ocupacion
         );
 
         const atras = integrarStreamline(
             campo,
             semilla.x,
             semilla.y,
-            -1
+            -1,
+            ocupacion
         );
 
-        // Los puntos quedan ordenados siguiendo
-        // el sentido de avance del viento.
-        const puntos = atras.reverse().concat(adelante);
+        const puntos = atras
+            .reverse()
+            .concat(adelante);
 
         if (puntos.length < 3) continue;
 
-        /* ------------------------------------------
-           DIBUJAR LOS TRAMOS SEGÚN SU VELOCIDAD
-           ------------------------------------------ */
+        // Reservar el espacio de esta trayectoria antes
+        // de aceptar la siguiente semilla.
+        marcarOcupacionStreamline(
+            ocupacion,
+            puntos
+        );
 
+        // Dibujar segmentos coloreados según la velocidad.
+        // Dibujar segmentos coloreados según la velocidad.
+        // Evitar líneas largas al cruzar el borde del mapa.
         for (let i = 1; i < puntos.length; i++) {
             const p1 = puntos[i - 1];
             const p2 = puntos[i];
 
+            // Si hay un salto horizontal grande, no dibujar
+            // el segmento que conecta ambos extremos del mapa.
+            if (Math.abs(p2.x - p1.x) > campo.width * 0.5) {
+                continue;
+            }
+
             const xm = (p1.x + p2.x) * 0.5;
             const ym = (p1.y + p2.y) * 0.5;
 
-            const viento = muestrearViento(campo, xm, ym);
+            const viento = muestrearViento(
+                campo, xm, ym
+            );
 
             if (!viento) continue;
 
-            const velocidad = Math.hypot(
-                viento.u,
-                viento.v
+            const color = colorViento(
+                Math.hypot(viento.u, viento.v)
             );
 
-            const color = colorViento(velocidad);
-
-            // Primero, el contorno oscuro.
-            //ctx.beginPath();
-            //ctx.moveTo(p1.x, p1.y);
-            //ctx.lineTo(p2.x, p2.y);
-
-            //ctx.strokeStyle = "rgba(0, 0, 0, 0.75)";
-            //ctx.lineWidth = 2.4;
-            //ctx.stroke();
-
-            // Después, la línea coloreada.
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-
             ctx.strokeStyle = color;
             ctx.lineWidth = 0.7;
             ctx.stroke();
         }
 
-        /* ------------------------------------------
-           UNA FLECHA POR TRAYECTORIA
-           ------------------------------------------ */
-
-        // Evitamos colocar flechas en los extremos,
-        // donde las líneas pueden ser cortas.
+        // Una flecha por trayectoria.
         const i = Math.floor(puntos.length * 0.60);
 
         if (i >= 1 && i < puntos.length - 1) {
@@ -2448,18 +2542,15 @@ function dibujarStreamlines(canvas, campo) {
             );
 
             if (viento) {
-                const velocidad = Math.hypot(
-                    viento.u,
-                    viento.v
-                );
-
                 dibujarFlechaViento(
                     ctx,
                     pAnterior.x,
                     pAnterior.y,
                     pSiguiente.x,
                     pSiguiente.y,
-                    colorViento(velocidad),
+                    colorViento(
+                        Math.hypot(viento.u, viento.v)
+                    ),
                     3.5
                 );
             }
@@ -2831,11 +2922,20 @@ async function actualizarTooltip(evento, canvas) {
     );
   }
 }
+
 function configurarTooltip() {
   const tooltip = elementos.tooltipDatos;
 
   [elementos.canvasA, elementos.canvasB].forEach(canvas => {
+
+    // Detectar movimiento del mouse o del dedo.
     canvas.addEventListener("pointermove", evento => {
+
+      // En dispositivos táctiles, responder al dedo.
+      if (evento.pointerType === "touch") {
+        evento.preventDefault();
+      }
+
       ultimoPunteroTooltip = {
         clientX: evento.clientX,
         clientY: evento.clientY
@@ -2849,13 +2949,55 @@ function configurarTooltip() {
       );
     });
 
-    canvas.addEventListener("pointerleave", () => {
+    // En PC, ocultar al salir con el mouse.
+    // En móviles, no ocultar al terminar cada gesto.
+    canvas.addEventListener("pointerleave", evento => {
+
+      if (evento.pointerType === "touch") return;
+
       if (canvasTooltipActivo === canvas) {
         ultimoPunteroTooltip = null;
         canvasTooltipActivo = null;
         solicitudTooltip++;
         tooltip.hidden = true;
       }
+    });
+
+    // Mantener el tooltip activo al tocar y deslizar.
+    canvas.addEventListener("pointerdown", evento => {
+
+      if (evento.pointerType !== "touch") return;
+
+      ultimoPunteroTooltip = {
+        clientX: evento.clientX,
+        clientY: evento.clientY
+      };
+
+      canvasTooltipActivo = canvas;
+
+      actualizarTooltip(
+        ultimoPunteroTooltip,
+        canvas
+      );
+    });
+
+    // Evitar que el gesto táctil pierda el puntero
+    // cuando el navegador permite capturarlo.
+    canvas.addEventListener("pointerup", evento => {
+
+      if (evento.pointerType !== "touch") return;
+
+      ultimoPunteroTooltip = {
+        clientX: evento.clientX,
+        clientY: evento.clientY
+      };
+
+      canvasTooltipActivo = canvas;
+
+      actualizarTooltip(
+        ultimoPunteroTooltip,
+        canvas
+      );
     });
   });
 }

@@ -755,3 +755,8 @@ footer p {
 .controles-mensuales button:hover {
   background: #333;
 }
+
+#canvasA,
+#canvasB {
+  touch-action: none;
+}
