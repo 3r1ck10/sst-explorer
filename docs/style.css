@@ -146,21 +146,13 @@ main {
 
 .period-controls {
   display: flex;
-
-  align-items: end;
-
-  flex-wrap: wrap;
-
-  gap: 12px;
-
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
   margin-bottom: 12px;
-
   padding: 10px 14px;
-
   border: 1px solid var(--border);
-
   border-radius: 9px;
-
   background: rgba(17, 26, 43, 0.85);
 }
 
@@ -372,44 +364,38 @@ canvas {
 /* =========================================================
    TIMELINE
    ========================================================= */
+/* =========================================================
+   TIMELINE COMPACTO
+   ========================================================= */
 
 .timeline-panel {
-  margin-top: 10px;
-
-  padding: 9px 14px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  padding: 4px 10px;
 
   border: 1px solid var(--border);
-
-  border-radius: 9px;
+  border-radius: 6px;
 
   background: rgba(17, 26, 43, 0.9);
 }
 
 .timeline-labels {
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   gap: 10px;
 
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 
   color: var(--muted);
-
-  font-size: 0.72rem;
+  font-size: 0.68rem;
 }
 
-input[type="range"] {
+.timeline-panel input[type="range"] {
   display: block;
-
   width: 100%;
-
   margin: 0;
-
   accent-color: var(--accent);
-
   cursor: pointer;
 }
 
@@ -432,6 +418,7 @@ footer {
 footer p {
   margin: 0;
 }
+
 
 /* =========================================================
    RESPONSIVE
@@ -496,13 +483,21 @@ footer p {
     margin-top: 10px;
   }
 
-  .period-controls {
-    align-items: stretch;
+ .period-controls {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 10px;
+}
 
-    flex-direction: column;
+.period-row {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
 
-    gap: 9px;
-  }
+.controles-mensuales {
+  justify-content: center;
+}
 
   .period-selector,
   .period-selector select,
@@ -534,4 +529,229 @@ footer p {
   .panel-heading span {
     font-size: 0.7rem;
   }
+}
+/*===============================================*/
+/* Contenedor de la SST y el viento */
+.map-container {
+    position: relative;
+    width: 100%;
+    height: var(--map-height, 280px);
+}
+
+/* Ambos canvas ocupan exactamente el mismo espacio */
+.map-container #canvasA,
+.map-container #canvasB {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+}
+
+/* El viento se dibuja por encima de la SST */
+.map-container #windA,
+.map-container #windB {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 2;
+    pointer-events: none;
+    background: transparent;
+}
+
+/* Tooltip comparativo de los mapas */
+.tooltip-datos {
+  position: fixed;
+  z-index: 1000;
+  width: min(320px, calc(100vw - 24px));
+  padding: 12px 14px;
+
+  color: var(--text);
+  background: rgba(8, 13, 24, 0.97);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.tooltip-datos[hidden] {
+  display: none;
+}
+
+.tooltip-datos .tooltip-titulo {
+  margin-bottom: 7px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.tooltip-datos .tooltip-periodo {
+  margin-top: 7px;
+  font-weight: 700;
+}
+
+.tooltip-datos .tooltip-diferencia {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid var(--border);
+}
+
+.tooltip-datos .tooltip-nota {
+  color: var(--muted);
+  font-size: 11px;
+}
+/* Tooltip de comparación de periodos */
+#tooltipDatos {
+  box-sizing: border-box;
+  width: min(320px, calc(100vw - 24px));
+  padding: 12px;
+  border-radius: 10px;
+  line-height: 1.35;
+}
+
+/* Coordenadas en una sola línea */
+.tooltip-coordenadas {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+/* Columnas A y B */
+.tooltip-comparacion {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Tarjeta de cada periodo */
+.tooltip-columna {
+  min-width: 0;
+  padding: 9px;
+  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.12);
+}
+
+/* Nombre del periodo */
+.tooltip-periodo {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.tooltip-anio {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+/* Datos compactos */
+.tooltip-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 7px;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.tooltip-dato strong {
+  font-size: 0.95rem;
+}
+
+/* Diferencias debajo de las dos columnas */
+.tooltip-diferencia {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(128, 128, 128, 0.35);
+  font-size: 0.85rem;
+}
+
+.tooltip-diferencia-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.tooltip-diferencia-fila strong {
+  white-space: nowrap;
+}
+
+.tooltip-nota {
+  margin-top: 8px;
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+/* En pantallas muy estrechas, conservar la legibilidad */
+@media (max-width: 360px) {
+  #tooltipDatos {
+    width: calc(100vw - 16px);
+    padding: 8px;
+  }
+
+  .tooltip-comparacion {
+    gap: 6px;
+  }
+
+  .tooltip-columna {
+    padding: 6px;
+  }
+
+  .tooltip-dato {
+    font-size: 0.72rem;
+  }
+}
+
+#nivelViento {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #1b1b1b;
+  color: #fff;
+  cursor: pointer;
+}
+.period-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.period-row {
+  display: flex;
+  align-items: end;
+  flex-wrap: nowrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.period-row:first-child {
+  flex-wrap: wrap;
+}
+
+.controles-mensuales {
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.controles-mensuales button {
+  padding: 7px 12px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #1b1b1b;
+  color: white;
+  cursor: pointer;
+}
+
+.controles-mensuales button:hover {
+  background: #333;
 }

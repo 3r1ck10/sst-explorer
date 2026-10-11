@@ -1,0 +1,224 @@
+{
+  "variableU": "u",
+  "variableV": "v",
+  "units": "m/s",
+  "years": {
+    "start": 1980,
+    "end": 2026
+  },
+  "resolution": {
+    "original": 0.25,
+    "final": 1.0
+  },
+  "width": 360,
+  "height": 180,
+  "longitude": {
+    "min": 0.375,
+    "max": 359.375
+  },
+  "latitude": {
+    "min": -89.375,
+    "max": 89.625
+  },
+  "latDescending": true,
+  "encoding": {
+    "type": "int16",
+    "scale": 0.01,
+    "missingValue": -32768
+  },
+  "monthsPerYear": 12,
+  "layout": [
+    "u_month",
+    "v_month"
+  ],
+  "files": {
+    "1980": {
+      "file": "1980.bin",
+      "months": 12
+    },
+    "1981": {
+      "file": "1981.bin",
+      "months": 12
+    },
+    "1982": {
+      "file": "1982.bin",
+      "months": 12
+    },
+    "1983": {
+      "file": "1983.bin",
+      "months": 12
+    },
+    "1984": {
+      "file": "1984.bin",
+      "months": 12
+    },
+    "1985": {
+      "file": "1985.bin",
+      "months": 12
+    },
+    "1986": {
+      "file": "1986.bin",
+      "months": 12
+    },
+    "1987": {
+      "file": "1987.bin",
+      "months": 12
+    },
+    "1988": {
+      "file": "1988.bin",
+      "months": 12
+    },
+    "1989": {
+      "file": "1989.bin",
+      "months": 12
+    },
+    "1990": {
+      "file": "1990.bin",
+      "months": 12
+    },
+    "1991": {
+      "file": "1991.bin",
+      "months": 12
+    },
+    "1992": {
+      "file": "1992.bin",
+      "months": 12
+    },
+    "1993": {
+      "file": "1993.bin",
+      "months": 12
+    },
+    "1994": {
+      "file": "1994.bin",
+      "months": 12
+    },
+    "1995": {
+      "file": "1995.bin",
+      "months": 12
+    },
+    "1996": {
+      "file": "1996.bin",
+      "months": 12
+    },
+    "1997": {
+      "file": "1997.bin",
+      "months": 12
+    },
+    "1998": {
+      "file": "1998.bin",
+      "months": 12
+    },
+    "1999": {
+      "file": "1999.bin",
+      "months": 12
+    },
+    "2000": {
+      "file": "2000.bin",
+      "months": 12
+    },
+    "2001": {
+      "file": "2001.bin",
+      "months": 12
+    },
+    "2002": {
+      "file": "2002.bin",
+      "months": 12
+    },
+    "2003": {
+      "file": "2003.bin",
+      "months": 12
+    },
+    "2004": {
+      "file": "2004.bin",
+      "months": 12
+    },
+    "2005": {
+      "file": "2005.bin",
+      "months": 12
+    },
+    "2006": {
+      "file": "2006.bin",
+      "months": 12
+    },
+    "2007": {
+      "file": "2007.bin",
+      "months": 12
+    },
+    "2008": {
+      "file": "2008.bin",
+      "months": 12
+    },
+    "2009": {
+      "file": "2009.bin",
+      "months": 12
+    },
+    "2010": {
+      "file": "2010.bin",
+      "months": 12
+    },
+    "2011": {
+      "file": "2011.bin",
+      "months": 12
+    },
+    "2012": {
+      "file": "2012.bin",
+      "months": 12
+    },
+    "2013": {
+      "file": "2013.bin",
+      "months": 12
+    },
+    "2014": {
+      "file": "2014.bin",
+      "months": 12
+    },
+    "2015": {
+      "file": "2015.bin",
+      "months": 12
+    },
+    "2016": {
+      "file": "2016.bin",
+      "months": 12
+    },
+    "2017": {
+      "file": "2017.bin",
+      "months": 12
+    },
+    "2018": {
+      "file": "2018.bin",
+      "months": 12
+    },
+    "2019": {
+      "file": "2019.bin",
+      "months": 12
+    },
+    "2020": {
+      "file": "2020.bin",
+      "months": 12
+    },
+    "2021": {
+      "file": "2021.bin",
+      "months": 12
+    },
+    "2022": {
+      "file": "2022.bin",
+      "months": 12
+    },
+    "2023": {
+      "file": "2023.bin",
+      "months": 12
+    },
+    "2024": {
+      "file": "2024.bin",
+      "months": 12
+    },
+    "2025": {
+      "file": "2025.bin",
+      "months": 12
+    },
+    "2026": {
+      "file": "2026.bin",
+      "months": 9
+    }
+  }
+}

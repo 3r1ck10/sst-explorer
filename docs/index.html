@@ -26,6 +26,8 @@
 
   <main>
     <section class="period-controls">
+      <!-- Primera fila: controles actuales -->
+    <div class="period-row">
       <div class="period-selector">
         <label for="periodoA">Periodo A</label>
         <select id="periodoA"></select>
@@ -35,7 +37,28 @@
         <label for="periodoB">Periodo B</label>
         <select id="periodoB"></select>
       </div>
+      <div class="period-selector">
+        <label for="nivelViento">Nivel de viento</label>
+        <select id="nivelViento">
+          <option value="10m">10 m (superficie)</option>
+          <option value="850hPa">850 hPa</option>
+          <option value="500hPa">500 hPa</option>
+          <option value="250hPa">250 hPa</option>
+        </select>
+      </div>
+      <div class="period-selector">
+        <label>
+          <input type="checkbox" id="mostrarVientos" checked>
+          Mostrar vientos
+        </label>
+      </div>
 
+      <div class="period-selector">
+        <label>
+          <input type="checkbox" id="mostrarTooltip" checked>
+          Mostrar tooltip
+        </label>
+      </div>
       <div class="map-size-control">
         <label for="mapSize">Tamaño de mapas</label>
 
@@ -50,7 +73,6 @@
 
         <span id="mapSizeValue">300 px</span>
         </div>
-
       <div class="playback-controls">
         <button id="btnPlay" type="button">▶ Reproducir</button>
         <label for="velocidad">Velocidad</label>
@@ -60,15 +82,46 @@
           <option value="25">Rápida</option>
         </select>
       </div>
-    </section>
+      <!-- Aquí deja todos los controles que ya tienes arriba -->
+    </div>
+    <!-- Segunda fila: navegación mensual -->
+    <div class="period-row controles-mensuales">
+      <button id="btnMesAnterior" type="button">
+        ◀ Mes anterior
+      </button>
 
+      <button id="btnMesSiguiente" type="button">
+        Mes siguiente ▶
+      </button>
+    </div>
+    </section>
+    <section class="timeline-panel">
+      <div class="timeline-labels">
+        <span id="timelineStart">Inicio</span>
+        <span id="frameCounter">Frame 0</span>
+        <span id="timelineEnd">Fin</span>
+      </div>
+
+      <input
+        id="timeline"
+        type="range"
+        min="0"
+        max="0"
+        value="0"
+        step="1"
+      >
+    </section>
+    
     <section class="maps-grid">
       <article class="map-panel">
         <div class="panel-heading">
           <h2>Periodo A</h2>
           <span id="fechaA">—</span>
         </div>
-        <canvas id="canvasA"></canvas>
+        <div class="map-container">
+          <canvas id="canvasA"></canvas>
+          <canvas id="windA"></canvas>
+        </div>
         <div class="legend">
           <span id="minA">—</span>
           <div class="legend-gradient" id="legendA"></div>
@@ -94,7 +147,10 @@
           <h2>Periodo B</h2>
           <span id="fechaB">—</span>
         </div>
-        <canvas id="canvasB"></canvas>
+        <div class="map-container">
+            <canvas id="canvasB"></canvas>
+            <canvas id="windB"></canvas>
+        </div>
         <div class="legend">
           <span id="minB">—</span>
           <div class="legend-gradient" id="legendB"></div>
@@ -112,27 +168,21 @@
         <p class="small-note">
           Por otro lado, en el modo de anomalías, los valores representan desviaciones
           respecto a la climatología mensual de referencia 1980 - 2010.
+          Toda la informacion en este dashboard es respecto a datos mensuales.
+          La primera imagen de cada mes representa el promedio de ese mes (los demas son transiciones hacia el siguiente mes).
+        </p>
+        <p class="small-note">
+          Toda la informacion en este dashboard es respecto a datos mensuales.
+        </p>
+        <p class="small-note">
+          La primera imagen de cada mes representa el promedio de ese mes (los demas son transiciones hacia el siguiente mes).
         </p>
         <a class="noaa-link" href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/" target="_blank" rel="noopener noreferrer" > Ver años de El Niño y La Niña (NOAA) ↗ </a>
       </article>
     </section>
 
-    <section class="timeline-panel">
-      <div class="timeline-labels">
-        <span id="timelineStart">Inicio</span>
-        <span id="frameCounter">Frame 0</span>
-        <span id="timelineEnd">Fin</span>
-      </div>
-
-      <input
-        id="timeline"
-        type="range"
-        min="0"
-        max="0"
-        value="0"
-        step="1"
-      >
-    </section>
+    
+    <div id="tooltipDatos" class="tooltip-datos" role="status" aria-live="polite" hidden></div>
   </main>
 
   <footer>
