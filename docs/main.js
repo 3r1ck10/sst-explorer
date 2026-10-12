@@ -1721,17 +1721,16 @@ function valueAtT(series) {
   return a + (b - a) * frac;
 }
 
+// Descripción neutra de la anomalía Niño 3.4 del mes mostrado.
+// No es una clasificación oficial de El Niño / La Niña (NOAA usa
+// medias de 3 meses, persistencia y otra climatología).
 function ensoClass(v) {
   if (v == null || state.variable !== 'anomaly') return null;
-  if (v >= 2) return ['nino', 'El Niño muy fuerte'];
-  if (v >= 1.5) return ['nino', 'El Niño fuerte'];
-  if (v >= 1) return ['nino', 'El Niño moderado'];
-  if (v >= 0.5) return ['nino', 'El Niño débil'];
-  if (v <= -2) return ['nina', 'La Niña muy fuerte'];
-  if (v <= -1.5) return ['nina', 'La Niña fuerte'];
-  if (v <= -1) return ['nina', 'La Niña moderada'];
-  if (v <= -0.5) return ['nina', 'La Niña débil'];
-  return ['', 'Neutral'];
+  if (v >= 1.5) return ['nino', 'Muy cálido'];
+  if (v >= 0.5) return ['nino', 'Cálido'];
+  if (v <= -1.5) return ['nina', 'Muy frío'];
+  if (v <= -0.5) return ['nina', 'Frío'];
+  return ['', 'Cerca de lo normal'];
 }
 
 const chartState = { sA: [], sB: [], W: 600, H: 220, pad: { l: 40, r: 14, t: 14, b: 26 }, y0: -3, y1: 3 };
@@ -1788,8 +1787,8 @@ function drawChart() {
   if (anomaly) {
     g += `<rect x="${l}" y="${t}" width="${W - l - r}" height="${y(0.5) - t}" fill="rgba(240,90,60,0.07)"/>`;
     g += `<rect x="${l}" y="${y(-0.5)}" width="${W - l - r}" height="${H - b - y(-0.5)}" fill="rgba(70,140,255,0.07)"/>`;
-    g += `<text class="band-text" x="${W - r - 4}" y="${t + 11}" text-anchor="end" style="fill:#ff9a7a">EL NIÑO ≥ +0.5</text>`;
-    g += `<text class="band-text" x="${W - r - 4}" y="${H - b - 5}" text-anchor="end" style="fill:#7cc4ff">LA NIÑA ≤ −0.5</text>`;
+    g += `<text class="band-text" x="${W - r - 4}" y="${t + 11}" text-anchor="end" style="fill:#ff9a7a">CÁLIDO ≥ +0.5 °C</text>`;
+    g += `<text class="band-text" x="${W - r - 4}" y="${H - b - 5}" text-anchor="end" style="fill:#7cc4ff">FRÍO ≤ −0.5 °C</text>`;
   }
 
   // Rejilla Y
@@ -1885,7 +1884,7 @@ function updateBadges() {
     if (v == null) { setBadge(id, '', 'Niño 3.4: —'); continue; }
     if (anomaly) {
       const [cls, name] = ensoClass(v);
-      setBadge(id, cls, `${name} · ${fmt(v, 1)} °C`);
+      setBadge(id, cls, `Niño 3.4 · ${name} ${fmt(v, 1)} °C`);
     } else {
       setBadge(id, '', `Niño 3.4 · ${fmt(v, 1, false)} °C`);
     }

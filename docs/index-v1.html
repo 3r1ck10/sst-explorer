@@ -15,12 +15,15 @@
       <p>Explorador de temperatura superficial del mar</p>
     </div>
 
-    <div class="variable-control">
-      <label for="modoDatos">Variable</label>
-      <select id="modoDatos">
-        <option value="anomaly">Anomalías (°C)</option>
-        <option value="sst">SST (°C)</option>
-      </select>
+    <div class="topbar-right">
+      <a class="version-link" href="index.html">Ir a la versión nueva ↗</a>
+      <div class="variable-control">
+        <label for="modoDatos">Variable</label>
+        <select id="modoDatos">
+          <option value="anomaly">Anomalías (°C)</option>
+          <option value="sst">SST (°C)</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -77,9 +80,9 @@
         <button id="btnPlay" type="button">▶ Reproducir</button>
         <label for="velocidad">Velocidad</label>
         <select id="velocidad">
-          <option value="80">Lenta</option>
-          <option value="50" selected>Normal</option>
-          <option value="25">Rápida</option>
+          <option value="250">Lenta</option>
+          <option value="200" selected>Normal</option>
+          <option value="150">Rápida</option>
         </select>
       </div>
       <!-- Aquí deja todos los controles que ya tienes arriba -->

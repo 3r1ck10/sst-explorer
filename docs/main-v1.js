@@ -1,7 +1,19 @@
+/* =============================================================
+   SST EXPLORER · versión clásica (optimizada)
+   -------------------------------------------------------------
+   Mismo aspecto que la versión original, pero más rápida:
+   - Solo se descargan los fotogramas mensuales; los intermedios
+     se interpolan en el navegador (son interpolaciones lineales).
+   - Los PNG se decodifican en Web Workers.
+   - La paleta se aplica con tablas de color (LUT) sobre buffers
+     reutilizados: sin objetos nuevos por píxel.
+   - Las streamlines se calculan en Web Workers (en paralelo y por
+     adelantado), se guardan en caché y se dibujan agrupadas por
+     color: 6 trazos por mapa en lugar de miles.
+   ============================================================= */
+
 const CONFIG = {
   metadataPath: "data/metadata.json",
-  //windMetadataPath: "data/wind/metadata.json",
-  //windPath: "data/wind/",
   windBasePath: "data/wind/",
   framesPerMonth: 10,
 
@@ -35,14 +47,27 @@ const CONFIG = {
     [245, 245, 245],
     [240, 145, 75],
     [170, 20, 35]
-  ]
-};
+  ],
 
+  // Colores del viento por velocidad (< 2, < 7, resto).
+  windColors: ["#c3c3c3", "#1f742e", "#1c2d9a"],
+  windLineWidth: 0.7,
+  windArrowWidth: 1.1,
+  windCanvasScale: 2,
+
+  // Cachés.
+  monthCacheLimit: 140,
+  streamCacheLimit: 100, // imágenes de ~1 MB cada una
+
+  // Tiempo máximo que la animación espera a las streamlines
+  // de un fotograma antes de continuar (ms).
+  windWaitMs: 220
+};
 
 const elementos = {
   periodoA: document.getElementById("periodoA"),
   periodoB: document.getElementById("periodoB"),
-  
+
   btnMesAnterior: document.getElementById("btnMesAnterior"),
   btnMesSiguiente: document.getElementById("btnMesSiguiente"),
 
@@ -84,6 +109,8 @@ const elementos = {
   tooltipDatos: document.getElementById("tooltipDatos")
 };
 
+const mapSize = document.getElementById("mapSize");
+const mapSizeValue = document.getElementById("mapSizeValue");
 
 let metadata = null;
 let aniosDisponibles = [];
@@ -93,52 +120,59 @@ let totalFrames = 0;
 let reproduciendo = false;
 let temporizador = null;
 
-let tooltipOcupado = false;
-// ------------------------------------------------------------
-// CACHÉS
-// ------------------------------------------------------------
-
-// Caché de imágenes descargadas/decodificadas por el navegador.
-const cacheImagenes = new Map();
-
-// Caché de imágenes convertidas a valores físicos.
-const cacheValores = new Map();
-
-
-// ------------------------------------------------------------
-// BUFFER DE ANIMACIÓN
-// ------------------------------------------------------------
-
-// Número de frames que intentamos tener preparados
-// por delante de la reproducción.
 const BUFFER_FRAMES = 10;
 
-const framesPrecargados = new Set();
-
-// ------------------------------------------------------------
-// VIENTO
-// ------------------------------------------------------------
-
-// Metadatos independientes para cada nivel.
-const cacheMetadataViento = new Map();
-
-// Caché de archivos binarios por nivel y año.
-const cacheViento = new Map();
-
-// Identificador para descartar actualizaciones antiguas.
+// Identificadores para descartar resultados antiguos.
+let solicitudFrame = 0;
 let solicitudViento = 0;
+let solicitudTooltip = 0;
 
-// Campos de viento actualmente mostrados.
+// Estado del viento mostrado (para el tooltip).
 let vientoActualA = null;
 let vientoActualB = null;
 
+let ultimoPunteroTooltip = null;
+let canvasTooltipActivo = null;
+
 // ------------------------------------------------------------
-// TAMAÑO DE MAPAS
+// WORKERS
 // ------------------------------------------------------------
 
-const mapSize = document.getElementById("mapSize");
-const mapSizeValue = document.getElementById("mapSizeValue");
+const workers = [];
+const pendientesWorker = new Map();
+let siguienteIdWorker = 1;
+let turnoWorker = 0;
+let decodificarEnWorker = true;
 
+try {
+  const cantidad = Math.max(2, Math.min(4, (navigator.hardwareConcurrency || 4) - 1));
+  for (let i = 0; i < cantidad; i++) {
+    const w = new Worker("v1-worker.js");
+    w.onmessage = (e) => {
+      const p = pendientesWorker.get(e.data.id);
+      if (!p) return;
+      pendientesWorker.delete(e.data.id);
+      if (e.data.error) p.reject(new Error(e.data.error));
+      else p.resolve(e.data);
+    };
+    w.onerror = (e) => console.error("Error en worker:", e.message);
+    workers.push(w);
+  }
+} catch (error) {
+  console.warn("Web Workers no disponibles; se usará el hilo principal.", error);
+}
+
+function enviarWorker(mensaje, indice = null) {
+  if (!workers.length) {
+    return Promise.reject(new Error("Este navegador no permite Web Workers."));
+  }
+  return new Promise((resolve, reject) => {
+    const id = siguienteIdWorker++;
+    pendientesWorker.set(id, { resolve, reject });
+    const i = indice ?? (turnoWorker++ % workers.length);
+    workers[i % workers.length].postMessage({ ...mensaje, id });
+  });
+}
 
 // ------------------------------------------------------------
 // INICIO
@@ -149,19 +183,10 @@ async function iniciar() {
     const respuesta = await fetch(CONFIG.metadataPath);
 
     if (!respuesta.ok) {
-      throw new Error(
-        `No se pudo cargar metadata.json: ${respuesta.status}`
-      );
+      throw new Error(`No se pudo cargar metadata.json: ${respuesta.status}`);
     }
 
     metadata = await respuesta.json();
-
-    // --------------------------------------------------------
-    // METADATA DEL VIENTO
-    // --------------------------------------------------------
-
-
-    /////////////////////////////////////////////////////////////////
 
     aniosDisponibles = Object.keys(metadata.anios)
       .map(Number)
@@ -173,30 +198,20 @@ async function iniciar() {
     configurarLeyendas();
     actualizarTamanoMapas();
 
-    // Variable inicial.
-    modoDatos.value = "anomaly";
+    elementos.modoDatos.value = "anomaly";
+    construirTablasColor();
 
-    // Carga el primer frame.
     await actualizarComparacion();
-
-    // --------------------------------------------------------
-    // PRE-CARGA INICIAL
-    // --------------------------------------------------------
-    // Preparamos varios frames antes de comenzar la animación.
     await precargarBuffer(0);
 
-    // Iniciar automáticamente.
     iniciarAnimacion();
-
   } catch (error) {
     console.error(error);
-
     alert(
       "No se pudo iniciar el dashboard. Revisa metadata.json y ejecuta la página mediante un servidor local."
     );
   }
 }
-
 
 // ------------------------------------------------------------
 // SELECTORES DE PERIODOS
@@ -209,1615 +224,132 @@ function configurarSelectores() {
   const pares = [];
 
   for (let i = 0; i < aniosDisponibles.length - 1; i++) {
-
     const anio1 = aniosDisponibles[i];
     const anio2 = aniosDisponibles[i + 1];
 
-    // Solo permitir años consecutivos.
     if (anio2 !== anio1 + 1) continue;
 
-    const frames1 = obtenerNumeroFrames(anio1);
-    const frames2 = obtenerNumeroFrames(anio2);
-
-    if (frames1 > 0 && frames2 > 0) {
-
-      pares.push({
-        inicio: anio1,
-        fin: anio2,
-        frames: frames1 + frames2
-      });
+    if (obtenerNumeroFrames(anio1) > 0 && obtenerNumeroFrames(anio2) > 0) {
+      pares.push({ inicio: anio1, fin: anio2 });
     }
   }
 
   for (const par of pares) {
-
     const valor = `${par.inicio}_${par.fin}`;
     const texto = `${par.inicio}–${par.fin}`;
-
-    elementos.periodoA.add(
-      new Option(texto, valor)
-    );
-
-    elementos.periodoB.add(
-      new Option(texto, valor)
-    );
+    elementos.periodoA.add(new Option(texto, valor));
+    elementos.periodoB.add(new Option(texto, valor));
   }
 
   if (pares.length === 0) {
-    throw new Error(
-      "No se encontraron pares de años consecutivos."
-    );
+    throw new Error("No se encontraron pares de años consecutivos.");
   }
 
-  // Valores iniciales.
   elementos.periodoA.value = "1982_1983";
   elementos.periodoB.value = "1997_1998";
 }
 
-
 function obtenerNumeroFrames(anio) {
-
   const info = metadata.anios[String(anio)];
-
   if (!info) return 0;
-
-  const modo = elementos.modoDatos.value;
-
-  return info[modo]?.frames ?? 0;
+  return info[elementos.modoDatos.value]?.frames ?? 0;
 }
-
 
 function leerPeriodo(valor) {
-
-  const partes = valor
-    .split("_")
-    .map(Number);
-
-  return {
-    inicio: partes[0],
-    fin: partes[1]
-  };
+  const partes = valor.split("_").map(Number);
+  return { inicio: partes[0], fin: partes[1] };
 }
-
 
 // ------------------------------------------------------------
 // EVENTOS
 // ------------------------------------------------------------
 
 function configurarEventos() {
+  elementos.periodoA.addEventListener("change", actualizarComparacion);
+  elementos.periodoB.addEventListener("change", actualizarComparacion);
 
-  elementos.periodoA.addEventListener(
-    "change",
-    actualizarComparacion
-  );
+  elementos.modoDatos.addEventListener("change", async () => {
+    detenerAnimacion();
+    construirTablasColor();
+    configurarLeyendas();
+    await actualizarComparacion();
+    await precargarBuffer(0);
+    iniciarAnimacion();
+  });
 
-  elementos.periodoB.addEventListener(
-    "change",
-    actualizarComparacion
-  );
+  elementos.nivelViento.addEventListener("change", () => {
+    actualizarViento();
+    precargarViento(frameActual + 1);
+  });
 
+  elementos.mostrarVientos.addEventListener("change", () => {
+    actualizarViento();
+    if (elementos.mostrarVientos.checked) precargarViento(frameActual + 1);
+  });
 
-  elementos.modoDatos.addEventListener(
-    "change",
-    async () => {
+  elementos.mostrarTooltip.addEventListener("change", () => {
+    solicitudTooltip++;
 
-      detenerAnimacion();
-
-      configurarLeyendas();
-
-      await actualizarComparacion();
-
-      await precargarBuffer(0);
-
-      iniciarAnimacion();
+    if (!elementos.mostrarTooltip.checked) {
+      elementos.tooltipDatos.hidden = true;
+    } else if (ultimoPunteroTooltip && canvasTooltipActivo) {
+      actualizarTooltip(ultimoPunteroTooltip, canvasTooltipActivo);
     }
-  );
+  });
 
-  elementos.nivelViento.addEventListener(
-  "change",
-  async () => {
-    // Actualizar únicamente el viento.
-    // No hace falta reiniciar la animación SST.
-    await actualizarViento();
-  }
-  );
+  elementos.btnMesAnterior.addEventListener("click", () => cambiarMes(-1));
+  elementos.btnMesSiguiente.addEventListener("click", () => cambiarMes(1));
 
-  // Activar o desactivar la capa de viento.
-  elementos.mostrarVientos.addEventListener(
-    "change",
-    () => {
-      actualizarViento();
-    }
-  );
+  elementos.timeline.addEventListener("input", () => {
+    detenerAnimacion();
+    frameActual = Number(elementos.timeline.value);
+    mostrarFrameActual();
+    precargarBuffer(frameActual + 1);
+  });
 
-  // Activar o desactivar el tooltip.
-  elementos.mostrarTooltip.addEventListener(
-    "change",
-    () => {
-      solicitudTooltip++;
+  elementos.btnPlay.addEventListener("click", () => {
+    if (reproduciendo) detenerAnimacion();
+    else iniciarAnimacion();
+  });
 
-      if (!elementos.mostrarTooltip.checked) {
-        elementos.tooltipDatos.hidden = true;
-      } else if (ultimoPunteroTooltip && canvasTooltipActivo) {
-        actualizarTooltip(
-          ultimoPunteroTooltip,
-          canvasTooltipActivo
-        );
-      }
-    }
-  );
-
-  elementos.btnMesAnterior.addEventListener("click", () => {
-  cambiarMes(-1);
-});
-
-elementos.btnMesSiguiente.addEventListener("click", () => {
-  cambiarMes(1);
-});
-
-  elementos.timeline.addEventListener(
-    "input",
-    async () => {
-
-      detenerAnimacion();
-
-      frameActual =
-        Number(elementos.timeline.value);
-
-      await mostrarFrameActual();
-
-      // Preparamos frames cercanos al nuevo punto.
-      await precargarBuffer(frameActual + 1);
-    }
-  );
-
-
-  elementos.btnPlay.addEventListener(
-    "click",
-    () => {
-
-      if (reproduciendo) {
-        detenerAnimacion();
-      } else {
-        iniciarAnimacion();
-      }
-    }
-  );
-
-
-  elementos.velocidad.addEventListener(
-    "change",
-    () => {
-
-      // No hace falta reiniciar la animación.
-      // La nueva velocidad se utilizará en
-      // el siguiente frame.
-    }
-  );
-
-
-  mapSize.addEventListener(
-    "input",
-    () => {
-      actualizarTamanoMapas();
-    }
-  );
+  mapSize.addEventListener("input", actualizarTamanoMapas);
 }
-
 
 // ------------------------------------------------------------
 // COMPARACIÓN Y LÍNEA DE TIEMPO
 // ------------------------------------------------------------
 
 async function actualizarComparacion() {
-
   detenerAnimacion();
 
-  // El buffer anterior ya no corresponde
-  // necesariamente al nuevo periodo.
-  framesPrecargados.clear();
+  const periodoA = leerPeriodo(elementos.periodoA.value);
+  const periodoB = leerPeriodo(elementos.periodoB.value);
 
-  const periodoA =
-    leerPeriodo(elementos.periodoA.value);
-
-  const periodoB =
-    leerPeriodo(elementos.periodoB.value);
-
-
-  const framesA =
-    obtenerFramesPeriodo(periodoA);
-
-  const framesB =
-    obtenerFramesPeriodo(periodoB);
-
-
-  // Usa el tramo común de ambos periodos.
-  totalFrames =
-    Math.min(framesA, framesB);
-
+  totalFrames = Math.min(obtenerFramesPeriodo(periodoA), obtenerFramesPeriodo(periodoB));
 
   if (totalFrames <= 0) {
-
-    throw new Error(
-      "No hay frames disponibles para comparar."
-    );
+    throw new Error("No hay frames disponibles para comparar.");
   }
-
 
   frameActual = 0;
-
-
   elementos.timeline.min = 0;
-
-  elementos.timeline.max =
-    totalFrames - 1;
-
+  elementos.timeline.max = totalFrames - 1;
   elementos.timeline.value = 0;
 
-
-  //elementos.timelineStart.textContent =
-  //  `${periodoA.inicio} – ${periodoA.fin}`;
-
-
-  //elementos.timelineEnd.textContent =
-  //  `${periodoB.inicio} – ${periodoB.fin}`;
-
-
   await mostrarFrameActual();
-}
 
+  // Descargar en segundo plano todos los meses de ambos periodos.
+  precargarMesesPeriodo(periodoA);
+  precargarMesesPeriodo(periodoB);
+}
 
 function obtenerFramesPeriodo(periodo) {
-
-  const frames1 =
-    obtenerNumeroFrames(periodo.inicio);
-
-  const frames2 =
-    obtenerNumeroFrames(periodo.fin);
-
-  return frames1 + frames2;
+  return obtenerNumeroFrames(periodo.inicio) + obtenerNumeroFrames(periodo.fin);
 }
 
-
-// ------------------------------------------------------------
-// CARGA DE IMÁGENES
-// ------------------------------------------------------------
-
-function rutaImagen(anio, modo, frame) {
-
-  const numero =
-    String(frame).padStart(4, "0");
-
-  return `data/${modo}/${anio}/frame_${numero}.png`;
-}
-
-
-function cargarImagen(ruta) {
-
-  if (cacheImagenes.has(ruta)) {
-    return cacheImagenes.get(ruta);
-  }
-
-
-  const promesa =
-    new Promise((resolve, reject) => {
-
-      const imagen = new Image();
-
-
-      imagen.onload = () => {
-        resolve(imagen);
-      };
-
-
-      imagen.onerror = () => {
-
-        reject(
-          new Error(
-            `No se pudo cargar la imagen: ${ruta}`
-          )
-        );
-
-      };
-
-
-      imagen.src = ruta;
-    });
-
-
-  cacheImagenes.set(
-    ruta,
-    promesa
-  );
-
-
-  return promesa;
-}
-
-
-async function obtenerImagenPeriodo(
-  periodo,
-  modo,
-  frame
-) {
-
-  const framesPrimerAnio =
-    obtenerNumeroFrames(periodo.inicio);
-
-
-  let anio;
-  let frameAnual;
-
-
-  if (frame < framesPrimerAnio) {
-
-    anio = periodo.inicio;
-
-    frameAnual = frame;
-
-  } else {
-
-    anio = periodo.fin;
-
-    frameAnual =
-      frame - framesPrimerAnio;
-  }
-
-
-  const ruta =
-    rutaImagen(
-      anio,
-      modo,
-      frameAnual
-    );
-
-
-  const imagen =
-    await cargarImagen(ruta);
-
-
-  return {
-    imagen,
-    anio,
-    frameAnual
-  };
-}
-
-
-// ------------------------------------------------------------
-// DECODIFICACIÓN PNG A VALORES
-// ------------------------------------------------------------
-
-function obtenerEscala(modo) {
-
-  if (modo === "anomaly") {
-
-    return {
-
-      min:
-        metadata.anomaly_min ??
-        CONFIG.anomalyMin,
-
-      max:
-        metadata.anomaly_max ??
-        CONFIG.anomalyMax
-    };
-  }
-
-
-  return {
-
-    min:
-      metadata.sst_min ??
-      CONFIG.sstMin,
-
-    max:
-      metadata.sst_max ??
-      CONFIG.sstMax
-  };
-}
-
-
-async function decodificarImagen(
-  imagen,
-  modo,
-  claveCache
-) {
-
-  if (cacheValores.has(claveCache)) {
-
-    return cacheValores.get(
-      claveCache
-    );
-  }
-
-
-  const ancho =
-    imagen.naturalWidth;
-
-  const alto =
-    imagen.naturalHeight;
-
-
-  const canvas =
-    document.createElement("canvas");
-
-  canvas.width = ancho;
-  canvas.height = alto;
-
-
-  const ctx =
-    canvas.getContext(
-      "2d",
-      {
-        willReadFrequently: true
-      }
-    );
-
-
-  ctx.drawImage(
-    imagen,
-    0,
-    0
-  );
-
-
-  const pixels =
-    ctx.getImageData(
-      0,
-      0,
-      ancho,
-      alto
-    ).data;
-
-
-  const valores =
-    new Float32Array(
-      ancho * alto
-    );
-
-
-  const escala =
-    obtenerEscala(modo);
-
-
-  const rango =
-    escala.max - escala.min;
-
-
-  for (
-    let i = 0;
-    i < valores.length;
-    i++
-  ) {
-
-    const indice =
-      i * 4;
-
-
-    const alpha =
-      pixels[indice + 3];
-
-
-    // Dato faltante.
-    if (alpha === 0) {
-
-      valores[i] = NaN;
-
-      continue;
-    }
-
-
-    // El PNG está codificado en escala de grises.
-    const gris =
-      pixels[indice];
-
-
-    // 0 = faltante
-    // 1..255 = valores físicos.
-    if (gris === 0) {
-
-      valores[i] = NaN;
-
-    } else {
-
-      valores[i] =
-        escala.min +
-        ((gris - 1) / 254) *
-        rango;
-    }
-  }
-
-
-  const resultado = {
-
-    valores,
-    ancho,
-    alto
-  };
-
-
-  cacheValores.set(
-    claveCache,
-    resultado
-  );
-
-
-  return resultado;
-}
-
-
-async function obtenerValoresPeriodo(
-  periodo,
-  modo,
-  frame
-) {
-
-  const datos =
-    await obtenerImagenPeriodo(
-      periodo,
-      modo,
-      frame
-    );
-
-
-  const clave =
-    `${modo}/${datos.anio}/frame_${datos.frameAnual}`;
-
-
-  const decodificado =
-    await decodificarImagen(
-      datos.imagen,
-      modo,
-      clave
-    );
-
-
-  return {
-
-    ...decodificado,
-
-    anio:
-      datos.anio,
-
-    frameAnual:
-      datos.frameAnual
-  };
-}
-
-
-// ------------------------------------------------------------
-// PRECARGA DE FRAMES
-// ------------------------------------------------------------
-
-async function precargarFrame(frame) {
-
-  if (
-    frame < 0 ||
-    frame >= totalFrames
-  ) {
-    return;
-  }
-
-
-  if (
-    framesPrecargados.has(frame)
-  ) {
-    return;
-  }
-
-
-  const periodoA =
-    leerPeriodo(
-      elementos.periodoA.value
-    );
-
-
-  const periodoB =
-    leerPeriodo(
-      elementos.periodoB.value
-    );
-
-
-  const modo =
-    elementos.modoDatos.value;
-
-
-  try {
-
-    // IMPORTANTE:
-    // precargamos valores ya decodificados,
-    // no solamente las imágenes.
-    await Promise.all([
-
-      obtenerValoresPeriodo(
-        periodoA,
-        modo,
-        frame
-      ),
-
-      obtenerValoresPeriodo(
-        periodoB,
-        modo,
-        frame
-      )
-
-    ]);
-
-
-    framesPrecargados.add(
-      frame
-    );
-
-  } catch (error) {
-
-    console.error(
-      `Error precargando frame ${frame}:`,
-      error
-    );
-  }
-}
-
-
-async function precargarBuffer(
-  frameInicial
-) {
-
-  if (
-    totalFrames <= 0
-  ) {
-    return;
-  }
-
-
-  const tareas = [];
-
-
-  for (
-    let i = 0;
-    i < BUFFER_FRAMES;
-    i++
-  ) {
-
-    let frame =
-      frameInicial + i;
-
-
-    // Si llegamos al final,
-    // continuamos desde el principio.
-    if (
-      frame >= totalFrames
-    ) {
-
-      frame -= totalFrames;
-    }
-
-
-    tareas.push(
-      precargarFrame(frame)
-    );
-  }
-
-
-  await Promise.all(
-    tareas
-  );
-}
-
-
-// ------------------------------------------------------------
-// MOSTRAR FRAME
-// ------------------------------------------------------------
-
-async function mostrarFrameActual() {
-  solicitudTooltip++;
-
-  const periodoA =
-    leerPeriodo(
-      elementos.periodoA.value
-    );
-
-
-  const periodoB =
-    leerPeriodo(
-      elementos.periodoB.value
-    );
-
-
-  const modo =
-    elementos.modoDatos.value;
-
-
-  try {
-
-    const [
-      datosA,
-      datosB
-    ] = await Promise.all([
-
-      obtenerValoresPeriodo(
-        periodoA,
-        modo,
-        frameActual
-      ),
-
-      obtenerValoresPeriodo(
-        periodoB,
-        modo,
-        frameActual
-      )
-
-    ]);
-
-
-    dibujarCampo(
-
-      elementos.canvasA,
-
-      datosA.valores,
-
-      datosA.ancho,
-
-      datosA.alto,
-
-      modo
-    );
-
-
-    dibujarCampo(
-
-      elementos.canvasB,
-
-      datosB.valores,
-
-      datosB.ancho,
-
-      datosB.alto,
-
-      modo
-    );
-
-
-    const diferencia =
-      calcularDiferencia(
-        datosA.valores,
-        datosB.valores
-      );
-
-
-    dibujarCampo(
-
-      elementos.canvasDiff,
-
-      diferencia,
-
-      datosA.ancho,
-
-      datosA.alto,
-
-      "difference"
-    );
-
-
-    const fechaA =
-      obtenerEtiquetaFecha(
-        periodoA,
-        frameActual
-      );
-
-
-    const fechaB =
-      obtenerEtiquetaFecha(
-        periodoB,
-        frameActual
-      );
-
-
-    elementos.fechaA.textContent =
-      fechaA;
-
-
-    elementos.fechaB.textContent =
-      fechaB;
-
-
-    elementos.fechaDiff.textContent =
-      `${fechaB} − ${fechaA}`;
-
-
-    elementos.frameCounter.textContent =
-      `${fechaA} | ${fechaB}`;
-    
-    await actualizarViento();
-    // Refrescar el tooltip si el mouse sigue sobre un mapa.
-    if (ultimoPunteroTooltip && canvasTooltipActivo) {
-      actualizarTooltip(
-        ultimoPunteroTooltip,
-        canvasTooltipActivo
-      );
-    }
-  } catch (error) {
-
-    console.error(error);
-
-    detenerAnimacion();
-  }
-}
-
-async function cambiarMes(direccion) {
-  if (totalFrames <= 0) return;
-
-  // Detener la reproducción continua al navegar manualmente.
-  detenerAnimacion();
-
-  const framesPorMes = CONFIG.framesPerMonth;
-  const mesesTotales = Math.ceil(totalFrames / framesPorMes);
-
-  // Identificar el mes al que pertenece el frame actual.
-  const mesActual = Math.floor(frameActual / framesPorMes);
-
-  // Avanzar o retroceder exactamente un mes.
-  const mesNuevo =
-    (mesActual + direccion + mesesTotales) % mesesTotales;
-
-  // Ir al primer frame del mes: dato mensual original.
-  frameActual = mesNuevo * framesPorMes;
-
-  // Mantener sincronizada la línea de tiempo.
-  elementos.timeline.value = frameActual;
-
-  // Mostrar los mapas, las fechas y el viento para ese mes.
-  await mostrarFrameActual();
-
-  // Preparar los siguientes frames para cuando se reanude
-  // la animación continua.
-  await precargarBuffer(frameActual + 1);
-}
-// ------------------------------------------------------------
-// CÁLCULO B - A
-// ------------------------------------------------------------
-
-function calcularDiferencia(
-  valoresA,
-  valoresB
-) {
-
-  const resultado =
-    new Float32Array(
-      valoresA.length
-    );
-
-
-  for (
-    let i = 0;
-    i < valoresA.length;
-    i++
-  ) {
-
-    const a =
-      valoresA[i];
-
-    const b =
-      valoresB[i];
-
-
-    if (
-      !Number.isFinite(a) ||
-      !Number.isFinite(b)
-    ) {
-
-      resultado[i] = NaN;
-
-    } else {
-
-      resultado[i] =
-        b - a;
-    }
-  }
-
-
-  return resultado;
-}
-
-
-// ------------------------------------------------------------
-// FECHAS
-// ------------------------------------------------------------
-
-const NOMBRES_MESES = [
-
-  "Ene",
-  "Feb",
-  "Mar",
-  "Abr",
-  "May",
-  "Jun",
-  "Jul",
-  "Ago",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dic"
-
-];
-
-
-function obtenerEtiquetaFecha(
-  periodo,
-  frame
-) {
-
-  const framesPrimerAnio =
-    obtenerNumeroFrames(
-      periodo.inicio
-    );
-
-
-  let anio;
-  let frameAnual;
-
-
-  if (
-    frame < framesPrimerAnio
-  ) {
-
-    anio =
-      periodo.inicio;
-
-    frameAnual =
-      frame;
-
-  } else {
-
-    anio =
-      periodo.fin;
-
-    frameAnual =
-      frame -
-      framesPrimerAnio;
-  }
-
-
-  const mes =
-    Math.min(
-      11,
-      Math.floor(
-        frameAnual /
-        CONFIG.framesPerMonth
-      )
-    );
-
-
-  return `${NOMBRES_MESES[mes]} ${anio}`;
-}
-
-
-// ------------------------------------------------------------
-// DIBUJO DE MAPAS Y PALETAS
-// ------------------------------------------------------------
-
-function dibujarCampo(
-  canvas,
-  valores,
-  ancho,
-  alto,
-  modo
-) {
-
-  canvas.width =
-    ancho;
-
-  canvas.height =
-    alto;
-
-
-  const ctx =
-    canvas.getContext("2d");
-
-
-  const imagen =
-    ctx.createImageData(
-      ancho,
-      alto
-    );
-
-
-  const escala =
-    obtenerEscalaDibujo(
-      modo
-    );
-
-
-  for (
-    let i = 0;
-    i < valores.length;
-    i++
-  ) {
-
-    const valor =
-      valores[i];
-
-
-    const indice =
-      i * 4;
-
-
-    if (
-      !Number.isFinite(valor)
-    ) {
-
-      imagen.data[indice] = 0;
-
-      imagen.data[indice + 1] = 0;
-
-      imagen.data[indice + 2] = 0;
-
-      imagen.data[indice + 3] = 0;
-
-      continue;
-    }
-
-
-    const normalizado =
-      limitar(
-
-        (valor - escala.min) /
-        (escala.max - escala.min),
-
-        0,
-        1
-      );
-
-
-    const color =
-      interpolarPaleta(
-        normalizado,
-        escala.colores
-      );
-
-
-    imagen.data[indice] =
-      color[0];
-
-    imagen.data[indice + 1] =
-      color[1];
-
-    imagen.data[indice + 2] =
-      color[2];
-
-    imagen.data[indice + 3] =
-      255;
-  }
-
-
-  ctx.putImageData(
-    imagen,
-    0,
-    0
-  );
-}
-
-
-function obtenerEscalaDibujo(
-  modo
-) {
-
-  if (
-    modo === "difference"
-  ) {
-
-    return {
-
-      min:
-        CONFIG.differenceMin,
-
-      max:
-        CONFIG.differenceMax,
-
-      colores:
-        CONFIG.anomalyColors
-    };
-  }
-
-
-  if (
-    modo === "anomaly"
-  ) {
-
-    const escala =
-      obtenerEscala(
-        "anomaly"
-      );
-
-
-    return {
-
-      ...escala,
-
-      colores:
-        CONFIG.anomalyColors
-    };
-  }
-
-
-  const escala =
-    obtenerEscala(
-      "sst"
-    );
-
-
-  return {
-
-    ...escala,
-
-    colores:
-      CONFIG.sstColors
-  };
-}
-
-
-function interpolarPaleta(
-  valor,
-  paleta
-) {
-
-  const posicion =
-    valor *
-    (paleta.length - 1);
-
-
-  const indice =
-    Math.floor(
-      posicion
-    );
-
-
-  const fraccion =
-    posicion - indice;
-
-
-  if (
-    indice >=
-    paleta.length - 1
-  ) {
-
-    return paleta[
-      paleta.length - 1
-    ];
-  }
-
-
-  const c1 =
-    paleta[indice];
-
-
-  const c2 =
-    paleta[indice + 1];
-
-
-  return [
-
-    Math.round(
-      c1[0] +
-      (c2[0] - c1[0]) *
-      fraccion
-    ),
-
-    Math.round(
-      c1[1] +
-      (c2[1] - c1[1]) *
-      fraccion
-    ),
-
-    Math.round(
-      c1[2] +
-      (c2[2] - c1[2]) *
-      fraccion
-    )
-
-  ];
-}
-
-
-function limitar(
-  valor,
-  min,
-  max
-) {
-
-  return Math.max(
-    min,
-    Math.min(max, valor)
-  );
-}
-
-
-// ------------------------------------------------------------
-// LEYENDAS
-// ------------------------------------------------------------
-
-function configurarLeyendas() {
-
-  const modo =
-    elementos.modoDatos.value;
-
-
-  let min;
-  let max;
-  let gradiente;
-
-
-  if (
-    modo === "anomaly"
-  ) {
-
-    min =
-      CONFIG.anomalyMin;
-
-    max =
-      CONFIG.anomalyMax;
-
-    gradiente =
-      CONFIG.anomalyColors;
-
-  } else {
-
-    min =
-      CONFIG.sstMin;
-
-    max =
-      CONFIG.sstMax;
-
-    gradiente =
-      CONFIG.sstColors;
-  }
-
-
-  const cssGradiente =
-    crearGradienteCSS(
-      gradiente
-    );
-
-
-  for (
-    const elemento of [
-
-      elementos.legendA,
-      elementos.legendB
-
-    ]
-  ) {
-
-    elemento.style.background =
-      cssGradiente;
-  }
-
-
-  elementos.legendDiff.style.background =
-    crearGradienteCSS(
-      CONFIG.anomalyColors
-    );
-
-
-  elementos.minA.textContent =
-    `${min} °C`;
-
-  elementos.maxA.textContent =
-    `${max} °C`;
-
-  elementos.minB.textContent =
-    `${min} °C`;
-
-  elementos.maxB.textContent =
-    `${max} °C`;
-
-
-  elementos.minDiff.textContent =
-    `${CONFIG.differenceMin} °C`;
-
-
-  elementos.maxDiff.textContent =
-    `${CONFIG.differenceMax} °C`;
-}
-
-
-function crearGradienteCSS(
-  paleta
-) {
-
-  const paradas =
-    paleta.map(
-      (color, i) => {
-
-        const porcentaje =
-          (i /
-            (paleta.length - 1)) *
-          100;
-
-
-        return `rgb(${color.join(",")}) ${porcentaje}%`;
-      }
-    );
-
-
-  return `linear-gradient(to right, ${paradas.join(", ")})`;
-}
-
-
-// ------------------------------------------------------------
-// ANIMACIÓN
-// ------------------------------------------------------------
-
-async function reproducirSiguienteFrame() {
-
-  if (!reproduciendo) {
-    return;
-  }
-
-
-  if (
-    frameActual >=
-    totalFrames - 1
-  ) {
-
-    frameActual = 0;
-
-  } else {
-
-    frameActual++;
-  }
-
-
-  elementos.timeline.value =
-    frameActual;
-
-
-  // Esperamos a que el frame termine
-  // de procesarse antes de continuar.
-  await mostrarFrameActual();
-
-
-  if (!reproduciendo) {
-    return;
-  }
-
-
-  // Mientras mostramos el frame actual,
-  // preparamos los siguientes.
-  //
-  // No esperamos aquí para que la animación
-  // no se detenga.
-  precargarBuffer(
-    frameActual + 1
-  );
-
-
-  if (!reproduciendo) {
-    return;
-  }
-
-
-  temporizador =
-    setTimeout(
-      reproducirSiguienteFrame,
-      Number(
-        elementos.velocidad.value
-      )
-    );
-}
-
-
-async function iniciarAnimacion() {
-
-  if (reproduciendo) {
-    return;
-  }
-
-
-  reproduciendo = true;
-
-  elementos.btnPlay.textContent =
-    "⏸ Pausar";
-
-
-  // Antes de comenzar, aseguramos que
-  // haya algunos frames preparados.
-  await precargarBuffer(
-    frameActual + 1
-  );
-
-
-  if (!reproduciendo) {
-    return;
-  }
-
-
-  reproducirSiguienteFrame();
-}
-
-
-function detenerAnimacion() {
-
-  reproduciendo = false;
-
-
-  if (
-    temporizador !== null
-  ) {
-
-    clearTimeout(
-      temporizador
-    );
-
-    temporizador = null;
-  }
-
-
-  elementos.btnPlay.textContent =
-    "▶ Reproducir";
-}
-
-
-// ------------------------------------------------------------
-// TAMAÑO DE MAPAS
-// ------------------------------------------------------------
-
-function actualizarTamanoMapas() {
-
-  const altura =
-    Number(
-      mapSize.value
-    );
-
-
-  document.documentElement.style.setProperty(
-    "--map-height",
-    `${altura}px`
-  );
-
-
-  mapSizeValue.textContent =
-    `${altura} px`;
-}
-// ============================================================
-// VIENTO / STREAMLINES
-// ============================================================
-async function cargarMetadataViento(nivel) {
-  if (cacheMetadataViento.has(nivel)) {
-    return cacheMetadataViento.get(nivel);
-  }
-
-  const ruta =
-    `${CONFIG.windBasePath}${nivel}/metadata.json`;
-
-  const promesa = (async () => {
-    const respuesta = await fetch(ruta);
-
-    if (!respuesta.ok) {
-      throw new Error(
-        `No se pudo cargar metadata del viento: ${ruta}`
-      );
-    }
-
-    return await respuesta.json();
-  })();
-
-  cacheMetadataViento.set(nivel, promesa);
-
-  try {
-    return await promesa;
-  } catch (error) {
-    cacheMetadataViento.delete(nivel);
-    throw error;
-  }
-}
-// ------------------------------------------------------------
-// CARGAR ARCHIVO BINARIO DE UN AÑO
-// ------------------------------------------------------------
-
-async function cargarVientoAnio(anio, nivel) {
-  const clave = `${nivel}/${anio}`;
-
-  if (cacheViento.has(clave)) {
-    return cacheViento.get(clave);
-  }
-
-  const ruta =
-    `${CONFIG.windBasePath}${nivel}/${anio}.bin`;
-
-  const promesa = (async () => {
-    const respuesta = await fetch(ruta);
-
-    if (!respuesta.ok) {
-      throw new Error(
-        `No se pudo cargar viento: ${ruta}`
-      );
-    }
-
-    const buffer = await respuesta.arrayBuffer();
-
-    if (buffer.byteLength % Int16Array.BYTES_PER_ELEMENT !== 0) {
-      throw new Error(
-        `Tamaño binario inválido: ${ruta}`
-      );
-    }
-
-    return new Int16Array(buffer);
-  })();
-
-  cacheViento.set(clave, promesa);
-
-  try {
-    return await promesa;
-  } catch (error) {
-    cacheViento.delete(clave);
-    throw error;
-  }
-}
-
-
-// ------------------------------------------------------------
-// OBTENER CAMPO U/V DE UN MES
-// ------------------------------------------------------------
-
-function obtenerCampoViento(datos, mes, metadataNivel) {
-  const width = metadataNivel.width;
-  const height = metadataNivel.height;
-
-  const cantidad = width * height;
-
-  const scale = metadataNivel.encoding.scale;
-  const missingValue = metadataNivel.encoding.missingValue;
-
-  /*
-    Formato del .bin:
-
-    U enero, V enero,
-    U febrero, V febrero,
-    ...
-    U diciembre, V diciembre.
-  */
-
-  const offset = mes * cantidad * 2;
-
-  if (offset + cantidad * 2 > datos.length) {
-    throw new Error(
-      `El archivo de viento no contiene datos suficientes para el mes ${mes + 1}.`
-    );
-  }
-
-  const U = new Float32Array(cantidad);
-  const V = new Float32Array(cantidad);
-
-  for (let i = 0; i < cantidad; i++) {
-    const valorU = datos[offset + i];
-    const valorV = datos[offset + cantidad + i];
-
-    U[i] =
-      valorU === missingValue ? NaN : valorU * scale;
-
-    V[i] =
-      valorV === missingValue ? NaN : valorV * scale;
-  }
-
-  return {
-    U,
-    V,
-    width,
-    height
-  };
-}
-
-
-// ------------------------------------------------------------
-// OBTENER VIENTO DE UN FRAME
-// ------------------------------------------------------------
-
-async function obtenerVientoFrame(periodo, frame, nivel) {
-  const metadataNivel = await cargarMetadataViento(nivel);
-
-  const framesPrimerAnio =
-    obtenerNumeroFrames(periodo.inicio);
+// Traduce un frame del periodo a año, mes y fracción de interpolación.
+function infoFrame(periodo, frame) {
+  const framesPrimerAnio = obtenerNumeroFrames(periodo.inicio);
 
   let anio;
   let frameAnual;
@@ -1830,872 +362,901 @@ async function obtenerVientoFrame(periodo, frame, nivel) {
     frameAnual = frame - framesPrimerAnio;
   }
 
-  // Cada 10 frames corresponde a un mes.
-  const mes = Math.floor(
-    frameAnual / CONFIG.framesPerMonth
-  );
+  const mes = Math.floor(frameAnual / CONFIG.framesPerMonth);
+  let alpha = (frameAnual % CONFIG.framesPerMonth) / CONFIG.framesPerMonth;
 
-  const frameDentroMes =
-    frameAnual % CONFIG.framesPerMonth;
+  let anioSig = anio;
+  let mesSig = mes + 1;
 
-  const alpha =
-    frameDentroMes / CONFIG.framesPerMonth;
+  if (mesSig > 11) {
+    anioSig = anio + 1;
+    mesSig = 0;
+  }
 
-  const datosActual =
-    await cargarVientoAnio(anio, nivel);
+  // Si el mes siguiente no existe, mostrar el mes actual.
+  if (alpha > 0 && mesesDisponibles(anioSig) <= mesSig) {
+    alpha = 0;
+  }
 
-  const campoActual =
-    obtenerCampoViento(
-      datosActual,
-      mes,
-      metadataNivel
-    );
-  // Si estamos en el primer frame del mes,
-  // mostrar directamente el promedio mensual del viento.
-  // Esto evita intentar cargar el mes siguiente cuando
-  // todavía no está disponible, como octubre de 2026.
-if (frameDentroMes === 0) {
+  return { anio, frameAnual, mes, alpha, anioSig, mesSig };
+}
+
+function mesesDisponibles(anio) {
+  return Math.ceil(obtenerNumeroFrames(anio) / CONFIG.framesPerMonth);
+}
+
+// ------------------------------------------------------------
+// CARGA DE IMÁGENES MENSUALES
+// ------------------------------------------------------------
+
+function rutaImagen(anio, modo, frame) {
+  const numero = String(frame).padStart(4, "0");
+  return `data/${modo}/${anio}/frame_${numero}.png`;
+}
+
+let canvasDecodificacion = null;
+
+async function decodificarEnHiloPrincipal(url) {
+  const respuesta = await fetch(url);
+  if (!respuesta.ok) throw new Error(`No se pudo cargar la imagen: ${url}`);
+
+  const bmp = await createImageBitmap(await respuesta.blob(), {
+    premultiplyAlpha: "none",
+    colorSpaceConversion: "none"
+  });
+
+  if (!canvasDecodificacion) canvasDecodificacion = document.createElement("canvas");
+  canvasDecodificacion.width = bmp.width;
+  canvasDecodificacion.height = bmp.height;
+
+  const ctx = canvasDecodificacion.getContext("2d", { willReadFrequently: true });
+  ctx.clearRect(0, 0, bmp.width, bmp.height);
+  ctx.drawImage(bmp, 0, 0);
+
+  const px = ctx.getImageData(0, 0, bmp.width, bmp.height).data;
+  const data = new Uint8Array(bmp.width * bmp.height);
+
+  for (let i = 0, j = 0; i < data.length; i++, j += 4) {
+    data[i] = px[j + 3] === 0 ? 0 : px[j];
+  }
+
+  return { data, w: bmp.width, h: bmp.height };
+}
+
+async function decodificarPNG(ruta) {
+  const url = new URL(ruta, location.href).href;
+
+  if (workers.length && decodificarEnWorker) {
+    try {
+      return await enviarWorker({ type: "decode", url });
+    } catch (error) {
+      if (!String(error.message).includes("NO_OFFSCREEN")) throw error;
+      decodificarEnWorker = false;
+    }
+  }
+
+  return decodificarEnHiloPrincipal(url);
+}
+
+// Caché de meses: valores en escala de grises (0 = sin dato).
+const cacheMeses = new Map();
+
+function cargarMes(modo, anio, mes) {
+  const clave = `${modo}/${anio}/${mes}`;
+
+  if (cacheMeses.has(clave)) {
+    const entrada = cacheMeses.get(clave);
+    cacheMeses.delete(clave);
+    cacheMeses.set(clave, entrada);
+    return entrada.promesa;
+  }
+
+  const entrada = { datos: null, promesa: null };
+
+  entrada.promesa = decodificarPNG(rutaImagen(anio, modo, mes * CONFIG.framesPerMonth))
+    .then((r) => {
+      entrada.datos = r;
+      return r;
+    })
+    .catch((error) => {
+      cacheMeses.delete(clave);
+      throw error;
+    });
+
+  cacheMeses.set(clave, entrada);
+
+  while (cacheMeses.size > CONFIG.monthCacheLimit) {
+    cacheMeses.delete(cacheMeses.keys().next().value);
+  }
+
+  return entrada.promesa;
+}
+
+async function obtenerDatosFrame(periodo, modo, frame) {
+  const info = infoFrame(periodo, frame);
+
+  const tareas = [cargarMes(modo, info.anio, info.mes)];
+  if (info.alpha > 0) tareas.push(cargarMes(modo, info.anioSig, info.mesSig));
+
+  const [d0, d1] = await Promise.all(tareas);
+
   return {
-    U: campoActual.U,
-    V: campoActual.V,
-    width: campoActual.width,
-    height: campoActual.height
+    g0: d0.data,
+    g1: d1 ? d1.data : null,
+    alpha: d1 ? info.alpha : 0,
+    ancho: d0.w,
+    alto: d0.h,
+    anio: info.anio,
+    frameAnual: info.frameAnual
   };
 }
 
-  let campoSiguiente;
-
-  if (mes < 11) {
-    campoSiguiente = obtenerCampoViento(
-      datosActual,
-      mes + 1,
-      metadataNivel
-    );
-  } else {
-    const datosSiguiente =
-      await cargarVientoAnio(anio + 1, nivel);
-
-    campoSiguiente = obtenerCampoViento(
-      datosSiguiente,
-      0,
-      metadataNivel
-    );
-  }
-
-  if (
-    campoActual.width !== campoSiguiente.width ||
-    campoActual.height !== campoSiguiente.height
-  ) {
-    throw new Error(
-      `Las dimensiones del viento no coinciden en ${nivel}, año ${anio}.`
-    );
-  }
-
-  const cantidad =
-    campoActual.width * campoActual.height;
-
-  const U = new Float32Array(cantidad);
-  const V = new Float32Array(cantidad);
-
-  for (let i = 0; i < cantidad; i++) {
-    const u1 = campoActual.U[i];
-    const u2 = campoSiguiente.U[i];
-    const v1 = campoActual.V[i];
-    const v2 = campoSiguiente.V[i];
-
-    if (
-      !Number.isFinite(u1) ||
-      !Number.isFinite(u2) ||
-      !Number.isFinite(v1) ||
-      !Number.isFinite(v2)
-    ) {
-      U[i] = NaN;
-      V[i] = NaN;
-    } else {
-      U[i] = u1 * (1 - alpha) + u2 * alpha;
-      V[i] = v1 * (1 - alpha) + v2 * alpha;
+function precargarMesesPeriodo(periodo) {
+  const modo = elementos.modoDatos.value;
+  for (const anio of [periodo.inicio, periodo.fin]) {
+    const meses = mesesDisponibles(anio);
+    for (let m = 0; m < meses; m++) {
+      cargarMes(modo, anio, m).catch(() => {});
     }
   }
+}
 
+// ------------------------------------------------------------
+// PRECARGA DE FRAMES
+// ------------------------------------------------------------
+
+function framesSiguientes(frameInicial) {
+  const frames = [];
+  for (let i = 0; i < BUFFER_FRAMES; i++) {
+    let frame = frameInicial + i;
+    if (frame >= totalFrames) frame -= totalFrames;
+    if (frame >= 0 && frame < totalFrames) frames.push(frame);
+  }
+  return frames;
+}
+
+async function precargarBuffer(frameInicial) {
+  if (totalFrames <= 0) return;
+
+  const periodoA = leerPeriodo(elementos.periodoA.value);
+  const periodoB = leerPeriodo(elementos.periodoB.value);
+  const modo = elementos.modoDatos.value;
+
+  precargarViento(frameInicial);
+
+  const tareas = [];
+  for (const frame of framesSiguientes(frameInicial)) {
+    tareas.push(obtenerDatosFrame(periodoA, modo, frame));
+    tareas.push(obtenerDatosFrame(periodoB, modo, frame));
+  }
+
+  try {
+    await Promise.all(tareas);
+  } catch (error) {
+    console.error("Error precargando frames:", error);
+  }
+}
+
+function precargarViento(frameInicial) {
+  if (!elementos.mostrarVientos.checked || totalFrames <= 0) return;
+
+  const periodoA = leerPeriodo(elementos.periodoA.value);
+  const periodoB = leerPeriodo(elementos.periodoB.value);
+  const nivel = elementos.nivelViento.value;
+
+  for (const frame of framesSiguientes(frameInicial)) {
+    solicitarStreamlines(periodoA, frame, nivel).catch(() => {});
+    solicitarStreamlines(periodoB, frame, nivel).catch(() => {});
+  }
+}
+
+// ------------------------------------------------------------
+// MOSTRAR FRAME
+// ------------------------------------------------------------
+
+async function mostrarFrameActual() {
+  const id = ++solicitudFrame;
+  solicitudTooltip++;
+
+  const periodoA = leerPeriodo(elementos.periodoA.value);
+  const periodoB = leerPeriodo(elementos.periodoB.value);
+  const modo = elementos.modoDatos.value;
+  const frame = frameActual;
+
+  try {
+    const [datosA, datosB] = await Promise.all([
+      obtenerDatosFrame(periodoA, modo, frame),
+      obtenerDatosFrame(periodoB, modo, frame)
+    ]);
+
+    // Un frame más reciente ya fue solicitado.
+    if (id !== solicitudFrame) return;
+
+    datosActualesA = datosA;
+    datosActualesB = datosB;
+
+    dibujarCampo(elementos.canvasA, datosA);
+    dibujarCampo(elementos.canvasB, datosB);
+    dibujarDiferencia(elementos.canvasDiff, datosA, datosB);
+
+    const fechaA = obtenerEtiquetaFecha(periodoA, frame);
+    const fechaB = obtenerEtiquetaFecha(periodoB, frame);
+
+    elementos.fechaA.textContent = fechaA;
+    elementos.fechaB.textContent = fechaB;
+    elementos.fechaDiff.textContent = `${fechaB} − ${fechaA}`;
+    elementos.frameCounter.textContent = `${fechaA} | ${fechaB}`;
+
+    await actualizarViento(CONFIG.windWaitMs);
+
+    if (ultimoPunteroTooltip && canvasTooltipActivo) {
+      actualizarTooltip(ultimoPunteroTooltip, canvasTooltipActivo);
+    }
+  } catch (error) {
+    console.error(error);
+    detenerAnimacion();
+  }
+}
+
+async function cambiarMes(direccion) {
+  if (totalFrames <= 0) return;
+
+  detenerAnimacion();
+
+  const framesPorMes = CONFIG.framesPerMonth;
+  const mesesTotales = Math.ceil(totalFrames / framesPorMes);
+  const mesActual = Math.floor(frameActual / framesPorMes);
+  const mesNuevo = (mesActual + direccion + mesesTotales) % mesesTotales;
+
+  frameActual = mesNuevo * framesPorMes;
+  elementos.timeline.value = frameActual;
+
+  await mostrarFrameActual();
+  precargarBuffer(frameActual + 1);
+}
+
+// ------------------------------------------------------------
+// FECHAS
+// ------------------------------------------------------------
+
+const NOMBRES_MESES = [
+  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+];
+
+function obtenerEtiquetaFecha(periodo, frame) {
+  const info = infoFrame(periodo, frame);
+  return `${NOMBRES_MESES[Math.min(11, info.mes)]} ${info.anio}`;
+}
+
+// ------------------------------------------------------------
+// TABLAS DE COLOR (LUT)
+// ------------------------------------------------------------
+
+// Escala de decodificación del PNG (gris 1..255 -> valor físico).
+function obtenerEscala(modo) {
+  if (modo === "anomaly") {
+    return {
+      min: metadata.anomaly_min ?? CONFIG.anomalyMin,
+      max: metadata.anomaly_max ?? CONFIG.anomalyMax
+    };
+  }
   return {
-    U,
-    V,
-    width: campoActual.width,
-    height: campoActual.height
+    min: metadata.sst_min ?? CONFIG.sstMin,
+    max: metadata.sst_max ?? CONFIG.sstMax
   };
 }
 
+function interpolarPaleta(valor, paleta) {
+  const posicion = valor * (paleta.length - 1);
+  const indice = Math.floor(posicion);
+  const fraccion = posicion - indice;
 
-// ------------------------------------------------------------
-// MUESTREAR VIENTO CON INTERPOLACIÓN BILINEAL
-// ------------------------------------------------------------
+  if (indice >= paleta.length - 1) return paleta[paleta.length - 1];
 
-function muestrearViento(
-  campo,
-  x,
-  y
-  ) {
+  const c1 = paleta[indice];
+  const c2 = paleta[indice + 1];
 
-  const width =
-    campo.width;
+  return [
+    Math.round(c1[0] + (c2[0] - c1[0]) * fraccion),
+    Math.round(c1[1] + (c2[1] - c1[1]) * fraccion),
+    Math.round(c1[2] + (c2[2] - c1[2]) * fraccion)
+  ];
+}
 
-  const height =
-    campo.height;
+function empaquetarColor(c) {
+  // ImageData en memoria little-endian: 0xAABBGGRR
+  return ((255 << 24) | (c[2] << 16) | (c[1] << 8) | c[0]) >>> 0;
+}
 
+const LUT_DIFF_SIZE = 1024;
+let lutCampo = new Uint32Array(1021);
+let lutDiferencia = new Uint32Array(LUT_DIFF_SIZE);
+let escalaActual = { min: -5, max: 5 };
 
-  // Wrap longitudinal.
-  x =
-    ((x % width) + width) %
-    width;
+// LUT del campo indexada por gris*4 (resolución de 1/4 de nivel
+// para que la interpolación entre meses sea suave).
+function construirTablasColor() {
+  const modo = elementos.modoDatos.value;
+  const escala = obtenerEscala(modo);
+  const paleta = modo === "anomaly" ? CONFIG.anomalyColors : CONFIG.sstColors;
+  escalaActual = escala;
 
-
-  // Fuera de los polos.
-  if (
-    y < 0 ||
-    y >= height - 1
-  ) {
-
-    return null;
+  lutCampo = new Uint32Array(1021);
+  for (let k = 4; k <= 1020; k++) {
+    const gris = k / 4;
+    const valor = escala.min + ((gris - 1) / 254) * (escala.max - escala.min);
+    const n = limitar((valor - escala.min) / (escala.max - escala.min), 0, 1);
+    lutCampo[k] = empaquetarColor(interpolarPaleta(n, paleta));
   }
 
-
-  const x0 =
-    Math.floor(x);
-
-  const y0 =
-    Math.floor(y);
-
-
-  const x1 =
-    (x0 + 1) % width;
-
-  const y1 =
-    Math.min(
-      y0 + 1,
-      height - 1
-    );
-
-
-  const fx =
-    x - x0;
-
-  const fy =
-    y - y0;
-
-
-  const i00 =
-    y0 * width + x0;
-
-  const i10 =
-    y0 * width + x1;
-
-  const i01 =
-    y1 * width + x0;
-
-  const i11 =
-    y1 * width + x1;
-
-
-  const u00 =
-    campo.U[i00];
-
-  const u10 =
-    campo.U[i10];
-
-  const u01 =
-    campo.U[i01];
-
-  const u11 =
-    campo.U[i11];
-
-
-  const v00 =
-    campo.V[i00];
-
-  const v10 =
-    campo.V[i10];
-
-  const v01 =
-    campo.V[i01];
-
-  const v11 =
-    campo.V[i11];
-
-
-  if (
-    !Number.isFinite(u00) ||
-    !Number.isFinite(u10) ||
-    !Number.isFinite(u01) ||
-    !Number.isFinite(u11) ||
-
-    !Number.isFinite(v00) ||
-    !Number.isFinite(v10) ||
-    !Number.isFinite(v01) ||
-    !Number.isFinite(v11)
-  ) {
-
-    return null;
+  lutDiferencia = new Uint32Array(LUT_DIFF_SIZE);
+  for (let k = 0; k < LUT_DIFF_SIZE; k++) {
+    const n = k / (LUT_DIFF_SIZE - 1);
+    lutDiferencia[k] = empaquetarColor(interpolarPaleta(n, CONFIG.anomalyColors));
   }
-
-
-  const u0 =
-    u00 * (1 - fx) +
-    u10 * fx;
-
-  const u1 =
-    u01 * (1 - fx) +
-    u11 * fx;
-
-
-  const v0 =
-    v00 * (1 - fx) +
-    v10 * fx;
-
-  const v1 =
-    v01 * (1 - fx) +
-    v11 * fx;
-
-
-  return {
-
-    u:
-      u0 * (1 - fy) +
-      u1 * fy,
-
-    v:
-      v0 * (1 - fy) +
-      v1 * fy
-  };
 }
 
+function limitar(valor, min, max) {
+  return Math.max(min, Math.min(max, valor));
+}
 
 // ------------------------------------------------------------
-// INTEGRAR UNA STREAMLINE
+// DIBUJO DE MAPAS
 // ------------------------------------------------------------
 
-/* ==========================================================
-   STREAMLINES: INTEGRACIÓN RK4 + CONTROL DE DENSIDAD
-   ========================================================== */
+let datosActualesA = null;
+let datosActualesB = null;
 
-// Tamaño de cada celda de ocupación, en píxeles de datos.
-// Aumentarlo separa más las líneas.
-const STREAM_CELL_SIZE = 3.5;
+// Buffers de imagen reutilizados por canvas.
+const buffersCanvas = new WeakMap();
 
-// Distancia de seguridad alrededor de cada trayectoria.
-// Se expresa en celdas de ocupación.
-const STREAM_BUFFER_CELLS =0;
+function bufferPara(canvas, ancho, alto) {
+  let b = buffersCanvas.get(canvas);
 
-// Paso de integración en coordenadas del campo.
-const STREAM_STEP = 0.5;
-
-// Longitud máxima de integración.
-const STREAM_MAX_STEPS = 600;
-
-
-/* ----------------------------------------------------------
-   DIRECCIÓN LOCAL DEL VIENTO
-   ---------------------------------------------------------- */
-
-function obtenerDireccionViento(campo, x, y) {
-    const viento = muestrearViento(campo, x, y);
-
-    if (!viento) return null;
-
-    const lat = 90 - (y / (campo.height - 1)) * 180;
-
-    const cosLat = Math.max(
-        0.15,
-        Math.cos(lat * Math.PI / 180)
-    );
-
-    // U positiva: este.
-    // V positiva: norte; las filas aumentan hacia el sur.
-    const dx = viento.u / cosLat;
-    const dy = -viento.v;
-
-    const magnitud = Math.hypot(dx, dy);
-
-    if (!Number.isFinite(magnitud) || magnitud < 1e-8) {
-        return null;
-    }
-
-    return {
-        x: dx / magnitud,
-        y: dy / magnitud
-    };
-}
-
-
-/* ----------------------------------------------------------
-   DERIVADA PARA RK4
-   ---------------------------------------------------------- */
-
-function evaluarDireccion(campo, x, y, direccion) {
-    const d = obtenerDireccionViento(campo, x, y);
-
-    if (!d) return null;
-
-    return {
-        x: d.x * direccion,
-        y: d.y * direccion
-    };
-}
-
-
-/* ----------------------------------------------------------
-   CUADRÍCULA DE OCUPACIÓN ESPACIAL
-   ---------------------------------------------------------- */
-
-function crearOcupacionStreamlines(campo) {
-    const cellSize = STREAM_CELL_SIZE;
-
-    const columnas = Math.ceil(campo.width / cellSize);
-    const filas = Math.ceil(campo.height / cellSize);
-
-    return {
-        columnas,
-        filas,
-        cellSize,
-        celdas: new Uint8Array(columnas * filas)
-    };
-}
-
-
-function obtenerCeldaStreamline(ocupacion, x, y) {
-    const { columnas, filas, cellSize } = ocupacion;
-
-    // La longitud se repite horizontalmente.
-    x = ((x % (columnas * cellSize)) +
-         columnas * cellSize) %
-         (columnas * cellSize);
-
-    const cx = Math.floor(x / cellSize);
-    const cy = Math.floor(y / cellSize);
-
-    if (cy < 0 || cy >= filas) return null;
-
-    return {
-        x: cx,
-        y: cy,
-        indice: cy * columnas + cx
-    };
-}
-
-
-function celdaOcupadaCerca(ocupacion, x, y) {
-    const celda = obtenerCeldaStreamline(
-        ocupacion, x, y
-    );
-
-    if (!celda) return true;
-
-    const { columnas, filas, celdas } = ocupacion;
-
-    for (
-        let oy = -STREAM_BUFFER_CELLS;
-        oy <= STREAM_BUFFER_CELLS;
-        oy++
-    ) {
-        for (
-            let ox = -STREAM_BUFFER_CELLS;
-            ox <= STREAM_BUFFER_CELLS;
-            ox++
-        ) {
-            const cy = celda.y + oy;
-
-            if (cy < 0 || cy >= filas) continue;
-
-            const cx =
-                (celda.x + ox + columnas) % columnas;
-
-            if (celdas[cy * columnas + cx]) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-
-function marcarOcupacionStreamline(
-    ocupacion,
-    puntos
-) {
-    const { columnas, filas, celdas } = ocupacion;
-
-    for (const punto of puntos) {
-        const celda = obtenerCeldaStreamline(
-            ocupacion,
-            punto.x,
-            punto.y
-        );
-
-        if (!celda) continue;
-
-        for (
-            let oy = -STREAM_BUFFER_CELLS;
-            oy <= STREAM_BUFFER_CELLS;
-            oy++
-        ) {
-            for (
-                let ox = -STREAM_BUFFER_CELLS;
-                ox <= STREAM_BUFFER_CELLS;
-                ox++
-            ) {
-                const cy = celda.y + oy;
-
-                if (cy < 0 || cy >= filas) continue;
-
-                const cx =
-                    (celda.x + ox + columnas) % columnas;
-
-                celdas[cy * columnas + cx] = 1;
-            }
-        }
-    }
-}
-
-
-/* ----------------------------------------------------------
-   INTEGRAR UNA STREAMLINE CON RUNGE-KUTTA DE CUARTO ORDEN
-   ---------------------------------------------------------- */
-
-function integrarStreamline(
-    campo,
-    xInicial,
-    yInicial,
-    direccion,
-    ocupacion = null
-) {
-    const puntos = [];
-
-    let x = xInicial;
-    let y = yInicial;
-
-    const paso = STREAM_STEP;
-
-    for (let i = 0; i < STREAM_MAX_STEPS; i++) {
-        // Evitar salir por los polos.
-        if (y < 0 || y >= campo.height - 1) break;
-
-        // Evitar entrar en una región ya ocupada por otra línea.
-        // La comprobación empieza después de salir de la semilla.
-        if (
-            ocupacion &&
-            i > 0 &&
-            celdaOcupadaCerca(ocupacion, x, y)
-        ) {
-            break;
-        }
-
-        const k1 = evaluarDireccion(
-            campo, x, y, direccion
-        );
-
-        if (!k1) break;
-
-        const k2 = evaluarDireccion(
-            campo,
-            x + k1.x * paso * 0.5,
-            y + k1.y * paso * 0.5,
-            direccion
-        );
-
-        if (!k2) break;
-
-        const k3 = evaluarDireccion(
-            campo,
-            x + k2.x * paso * 0.5,
-            y + k2.y * paso * 0.5,
-            direccion
-        );
-
-        if (!k3) break;
-
-        const k4 = evaluarDireccion(
-            campo,
-            x + k3.x * paso,
-            y + k3.y * paso,
-            direccion
-        );
-
-        if (!k4) break;
-
-        puntos.push({ x, y });
-
-        x += paso * (
-            k1.x + 2 * k2.x + 2 * k3.x + k4.x
-        ) / 6;
-
-        y += paso * (
-            k1.y + 2 * k2.y + 2 * k3.y + k4.y
-        ) / 6;
-
-        // Mantener longitud dentro del dominio longitudinal.
-        x = ((x % campo.width) + campo.width) % campo.width;
-    }
-
-    return puntos;
-}
-
-
-/* ----------------------------------------------------------
-   GENERAR SEMILLAS CANDIDATAS
-   ---------------------------------------------------------- */
-
-function generarSemillas(campo) {
-    const semillas = [];
-
-    const columnas = 20;
-    const filas = 15;
-
-    const dx = campo.width / columnas;
-    const dy = campo.height / filas;
-
-    for (let j = 0; j < filas; j++) {
-        for (let i = 0; i < columnas; i++) {
-            const x = (i + 0.5) * dx;
-            const y = (j + 0.5) * dy;
-
-            const viento = muestrearViento(campo, x, y);
-
-            if (!viento) continue;
-
-            if (Math.hypot(viento.u, viento.v) < 0.05) {
-                continue;
-            }
-
-            semillas.push({ x, y });
-        }
-    }
-
-    return semillas;
-}
-
-/* ==========================================================
-   ESTILO DEL VIENTO
-   Escala cian -> turquesa -> blanco
-   ========================================================== */
-
-function colorViento(velocidad) {
-    if (velocidad < 2)  return "#c3c3c3"; // Gris claro: viento débil
-    //if (velocidad < 5)  return "#bbc111"; // Gris claro: viento débil
-    if (velocidad < 7)  return "#1f742e"; // Gris oscuro
-    //if (velocidad < 12)  return "#1c2d9a"; // Gris oscuro
-    return "#1c2d9a";                    // Negro: viento muy fuerte
-}
-/* ==========================================================
-   DIBUJAR FLECHA EN EL SENTIDO DEL VIENTO
-   ========================================================== */
-
-function dibujarFlechaViento(
-    ctx,
-    x1,
-    y1,
-    x2,
-    y2,
-    color,
-    tamano = 3.5
-) {
-    const angulo = Math.atan2(y2 - y1, x2 - x1);
-
-    const apertura = Math.PI / 6;
-
-    const ax = x2 - tamano * Math.cos(angulo - apertura);
-    const ay = y2 - tamano * Math.sin(angulo - apertura);
-
-    const bx = x2 - tamano * Math.cos(angulo + apertura);
-    const by = y2 - tamano * Math.sin(angulo + apertura);
-
-    // Contorno oscuro para mejorar el contraste.
-    //ctx.beginPath();
-    //ctx.moveTo(ax, ay);
-    //ctx.lineTo(x2, y2);
-    //ctx.lineTo(bx, by);
-
-    //ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
-    //ctx.lineWidth = 2.3;
-    //ctx.stroke();
-
-    // Interior de la flecha.
-    ctx.beginPath();
-    ctx.moveTo(ax, ay);
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(bx, by);
-
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.1;
-    ctx.stroke();
-}
-/* ==========================================================
-   DIBUJAR STREAMLINES COLOREADAS POR VELOCIDAD
-   ========================================================== */
-
-
-function dibujarStreamlines(canvas, campo) {
-    if (!canvas || !campo) return;
-
-    const escala = 2;
-
-    canvas.width = campo.width * escala;
-    canvas.height = campo.height * escala;
-
+  if (!b || b.ancho !== ancho || b.alto !== alto) {
+    canvas.width = ancho;
+    canvas.height = alto;
     const ctx = canvas.getContext("2d");
+    const imagen = ctx.createImageData(ancho, alto);
+    b = {
+      ancho,
+      alto,
+      ctx,
+      imagen,
+      pixeles: new Uint32Array(imagen.data.buffer)
+    };
+    buffersCanvas.set(canvas, b);
+  }
 
-    ctx.setTransform(escala, 0, 0, escala, 0, 0);
-    ctx.clearRect(0, 0, campo.width, campo.height);
-
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    const semillas = generarSemillas(campo);
-    const ocupacion = crearOcupacionStreamlines(campo);
-
-    for (const semilla of semillas) {
-        // No iniciar otra línea en una región congestionada.
-        if (
-            celdaOcupadaCerca(
-                ocupacion,
-                semilla.x,
-                semilla.y
-            )
-        ) {
-            continue;
-        }
-
-        // Integrar hacia adelante y hacia atrás.
-        const adelante = integrarStreamline(
-            campo,
-            semilla.x,
-            semilla.y,
-            1,
-            ocupacion
-        );
-
-        const atras = integrarStreamline(
-            campo,
-            semilla.x,
-            semilla.y,
-            -1,
-            ocupacion
-        );
-
-        const puntos = atras
-            .reverse()
-            .concat(adelante);
-
-        if (puntos.length < 3) continue;
-
-        // Reservar el espacio de esta trayectoria antes
-        // de aceptar la siguiente semilla.
-        marcarOcupacionStreamline(
-            ocupacion,
-            puntos
-        );
-
-        // Dibujar segmentos coloreados según la velocidad.
-        // Dibujar segmentos coloreados según la velocidad.
-        // Evitar líneas largas al cruzar el borde del mapa.
-        for (let i = 1; i < puntos.length; i++) {
-            const p1 = puntos[i - 1];
-            const p2 = puntos[i];
-
-            // Si hay un salto horizontal grande, no dibujar
-            // el segmento que conecta ambos extremos del mapa.
-            if (Math.abs(p2.x - p1.x) > campo.width * 0.5) {
-                continue;
-            }
-
-            const xm = (p1.x + p2.x) * 0.5;
-            const ym = (p1.y + p2.y) * 0.5;
-
-            const viento = muestrearViento(
-                campo, xm, ym
-            );
-
-            if (!viento) continue;
-
-            const color = colorViento(
-                Math.hypot(viento.u, viento.v)
-            );
-
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 0.7;
-            ctx.stroke();
-        }
-
-        // Una flecha por trayectoria.
-        const i = Math.floor(puntos.length * 0.60);
-
-        if (i >= 1 && i < puntos.length - 1) {
-            const pAnterior = puntos[i - 1];
-            const pSiguiente = puntos[i + 1];
-
-            const viento = muestrearViento(
-                campo,
-                puntos[i].x,
-                puntos[i].y
-            );
-
-            if (viento) {
-                dibujarFlechaViento(
-                    ctx,
-                    pAnterior.x,
-                    pAnterior.y,
-                    pSiguiente.x,
-                    pSiguiente.y,
-                    colorViento(
-                        Math.hypot(viento.u, viento.v)
-                    ),
-                    3.5
-                );
-            }
-        }
-    }
+  return b;
 }
 
+// Gris interpolado entre dos meses (0 = sin dato).
+function grisInterpolado(g0, g1, alpha, i) {
+  const a = g0[i];
+  if (alpha === 0) return a;
+  const b = g1[i];
+  if (a === 0 || b === 0) return alpha < 0.5 ? a : b;
+  return a + (b - a) * alpha;
+}
+
+function dibujarCampo(canvas, d) {
+  const b = bufferPara(canvas, d.ancho, d.alto);
+  const px = b.pixeles;
+  const lut = lutCampo;
+  const g0 = d.g0;
+  const n = px.length;
+
+  if (d.alpha === 0) {
+    for (let i = 0; i < n; i++) {
+      px[i] = lut[g0[i] << 2];
+    }
+  } else {
+    const g1 = d.g1;
+    const a = d.alpha;
+    for (let i = 0; i < n; i++) {
+      const x = g0[i];
+      const y = g1[i];
+      if (x === 0 || y === 0) {
+        px[i] = lut[(a < 0.5 ? x : y) << 2];
+      } else {
+        px[i] = lut[Math.round((x + (y - x) * a) * 4)];
+      }
+    }
+  }
+
+  b.ctx.putImageData(b.imagen, 0, 0);
+}
+
+function dibujarDiferencia(canvas, dA, dB) {
+  const b = bufferPara(canvas, dA.ancho, dA.alto);
+  const px = b.pixeles;
+  const lut = lutDiferencia;
+  const n = Math.min(px.length, dA.g0.length, dB.g0.length);
+
+  // Diferencia física = (grisB − grisA) · rango / 254
+  const factor = (escalaActual.max - escalaActual.min) / 254;
+  const dmin = CONFIG.differenceMin;
+  const escalaLut = (LUT_DIFF_SIZE - 1) / (CONFIG.differenceMax - CONFIG.differenceMin);
+  const max = LUT_DIFF_SIZE - 1;
+
+  for (let i = 0; i < n; i++) {
+    const a = grisInterpolado(dA.g0, dA.g1, dA.alpha, i);
+    const c = grisInterpolado(dB.g0, dB.g1, dB.alpha, i);
+
+    if (a === 0 || c === 0) {
+      px[i] = 0;
+      continue;
+    }
+
+    let k = Math.round(((c - a) * factor - dmin) * escalaLut);
+    if (k < 0) k = 0;
+    else if (k > max) k = max;
+    px[i] = lut[k];
+  }
+
+  b.ctx.putImageData(b.imagen, 0, 0);
+}
+
+// ------------------------------------------------------------
+// LEYENDAS
+// ------------------------------------------------------------
+
+function configurarLeyendas() {
+  const modo = elementos.modoDatos.value;
+
+  const min = modo === "anomaly" ? CONFIG.anomalyMin : CONFIG.sstMin;
+  const max = modo === "anomaly" ? CONFIG.anomalyMax : CONFIG.sstMax;
+  const gradiente = modo === "anomaly" ? CONFIG.anomalyColors : CONFIG.sstColors;
+
+  const cssGradiente = crearGradienteCSS(gradiente);
+
+  elementos.legendA.style.background = cssGradiente;
+  elementos.legendB.style.background = cssGradiente;
+  elementos.legendDiff.style.background = crearGradienteCSS(CONFIG.anomalyColors);
+
+  elementos.minA.textContent = `${min} °C`;
+  elementos.maxA.textContent = `${max} °C`;
+  elementos.minB.textContent = `${min} °C`;
+  elementos.maxB.textContent = `${max} °C`;
+  elementos.minDiff.textContent = `${CONFIG.differenceMin} °C`;
+  elementos.maxDiff.textContent = `${CONFIG.differenceMax} °C`;
+}
+
+function crearGradienteCSS(paleta) {
+  const paradas = paleta.map((color, i) => {
+    const porcentaje = (i / (paleta.length - 1)) * 100;
+    return `rgb(${color.join(",")}) ${porcentaje}%`;
+  });
+  return `linear-gradient(to right, ${paradas.join(", ")})`;
+}
+
+// ------------------------------------------------------------
+// ANIMACIÓN
+// ------------------------------------------------------------
+
+async function reproducirSiguienteFrame() {
+  if (!reproduciendo) return;
+
+  const inicio = performance.now();
+
+  frameActual = frameActual >= totalFrames - 1 ? 0 : frameActual + 1;
+  elementos.timeline.value = frameActual;
+
+  await mostrarFrameActual();
+
+  if (!reproduciendo) return;
+
+  // Preparar los siguientes frames sin detener la animación.
+  precargarBuffer(frameActual + 1);
+
+  // Descontar el tiempo de dibujo del intervalo elegido.
+  const espera = Math.max(0, Number(elementos.velocidad.value) - (performance.now() - inicio));
+  temporizador = setTimeout(reproducirSiguienteFrame, espera);
+}
+
+async function iniciarAnimacion() {
+  if (reproduciendo) return;
+
+  reproduciendo = true;
+  elementos.btnPlay.textContent = "⏸ Pausar";
+
+  await precargarBuffer(frameActual + 1);
+
+  if (!reproduciendo) return;
+
+  reproducirSiguienteFrame();
+}
+
+function detenerAnimacion() {
+  reproduciendo = false;
+
+  if (temporizador !== null) {
+    clearTimeout(temporizador);
+    temporizador = null;
+  }
+
+  elementos.btnPlay.textContent = "▶ Reproducir";
+}
+
+// ------------------------------------------------------------
+// TAMAÑO DE MAPAS
+// ------------------------------------------------------------
+
+function actualizarTamanoMapas() {
+  const altura = Number(mapSize.value);
+  document.documentElement.style.setProperty("--map-height", `${altura}px`);
+  mapSizeValue.textContent = `${altura} px`;
+}
+
+// ============================================================
+// VIENTO / STREAMLINES
+// ============================================================
+
+const cacheStreamlines = new Map();
+const streamlinesPendientes = new Map();
+
+function claveStreamlines(periodo, frame, nivel) {
+  const info = infoFrame(periodo, frame);
+  return { clave: `${nivel}|${info.anio}|${info.frameAnual}`, info };
+}
+
+function solicitarStreamlines(periodo, frame, nivel) {
+  const { clave, info } = claveStreamlines(periodo, frame, nivel);
+
+  if (cacheStreamlines.has(clave)) {
+    const r = cacheStreamlines.get(clave);
+    cacheStreamlines.delete(clave);
+    cacheStreamlines.set(clave, r);
+    return Promise.resolve(r);
+  }
+
+  if (streamlinesPendientes.has(clave)) {
+    return streamlinesPendientes.get(clave);
+  }
+
+  const promesa = enviarWorker({
+    type: "stream",
+    level: nivel,
+    year: info.anio,
+    month: info.mes,
+    alpha: info.alpha,
+    nextYear: info.anioSig,
+    nextMonth: info.mesSig,
+    style: {
+      scale: CONFIG.windCanvasScale,
+      lineWidth: CONFIG.windLineWidth,
+      arrowWidth: CONFIG.windArrowWidth,
+      colors: CONFIG.windColors
+    }
+  })
+    .then((r) => {
+      r.clave = clave;
+      cacheStreamlines.set(clave, r);
+      while (cacheStreamlines.size > CONFIG.streamCacheLimit) {
+        const antigua = cacheStreamlines.keys().next().value;
+        cacheStreamlines.get(antigua).bitmap?.close();
+        cacheStreamlines.delete(antigua);
+      }
+      return r;
+    })
+    .finally(() => {
+      streamlinesPendientes.delete(clave);
+    });
+
+  streamlinesPendientes.set(clave, promesa);
+  return promesa;
+}
+
+function obtenerStreamlinesEnCache(periodo, frame, nivel) {
+  return cacheStreamlines.get(claveStreamlines(periodo, frame, nivel).clave) || null;
+}
+
+// Respaldo (si el worker no puede dibujar): Path2D agrupados por color.
+function rutasStreamlines(r) {
+  if (r.rutas) return r.rutas;
+
+  const lineas = r.runs.map(({ coords, lens }) => {
+    const p = new Path2D();
+    let k = 0;
+    for (let j = 0; j < lens.length; j++) {
+      p.moveTo(coords[k], coords[k + 1]);
+      k += 2;
+      for (let q = 1; q < lens[j]; q++, k += 2) p.lineTo(coords[k], coords[k + 1]);
+    }
+    return p;
+  });
+
+  const flechas = [new Path2D(), new Path2D(), new Path2D()];
+  const a = r.arrows;
+  for (let i = 0; i < a.length; i += 7) {
+    const p = flechas[a[i + 6]];
+    p.moveTo(a[i], a[i + 1]);
+    p.lineTo(a[i + 2], a[i + 3]);
+    p.lineTo(a[i + 4], a[i + 5]);
+  }
+
+  r.rutas = { lineas, flechas };
+  return r.rutas;
+}
+
+function prepararCanvasViento(canvas, ancho, alto) {
+  const escala = CONFIG.windCanvasScale;
+  const w = ancho * escala;
+  const h = alto * escala;
+
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.setTransform(escala, 0, 0, escala, 0, 0);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  return ctx;
+}
+
+function dibujarStreamlines(canvas, r) {
+  if (!canvas || !r) return;
+
+  const ctx = prepararCanvasViento(canvas, r.width, r.height);
+
+  // Caso normal: imagen ya dibujada por el worker.
+  if (r.bitmap) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(r.bitmap, 0, 0);
+    return;
+  }
+
+  const { lineas, flechas } = rutasStreamlines(r);
+
+  ctx.lineJoin = "miter";
+  ctx.lineWidth = CONFIG.windLineWidth;
+  for (let c = 0; c < 3; c++) {
+    ctx.strokeStyle = CONFIG.windColors[c];
+    ctx.stroke(lineas[c]);
+  }
+
+  ctx.lineJoin = "round";
+  ctx.lineWidth = CONFIG.windArrowWidth;
+  for (let c = 0; c < 3; c++) {
+    ctx.strokeStyle = CONFIG.windColors[c];
+    ctx.stroke(flechas[c]);
+  }
+}
+
+function limpiarCanvasViento(canvas) {
+  if (!canvas) return;
+  canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+}
+
+const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ------------------------------------------------------------
 // ACTUALIZAR VIENTO
 // ------------------------------------------------------------
 
-async function actualizarViento() {
+async function actualizarViento(esperaMaxima = Infinity) {
   const idSolicitud = ++solicitudViento;
 
-  // Si los vientos están desactivados, limpiar ambos mapas
-  // y evitar nuevas cargas de datos.
   if (!elementos.mostrarVientos.checked) {
     vientoActualA = null;
     vientoActualB = null;
 
-    [elementos.windA, elementos.windB].forEach(canvas => {
-      if (!canvas) return;
+    limpiarCanvasViento(elementos.windA);
+    limpiarCanvasViento(elementos.windB);
 
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-
-    // Si el tooltip sigue activo, actualizarlo sin viento.
     if (ultimoPunteroTooltip && canvasTooltipActivo) {
-      actualizarTooltip(
-        ultimoPunteroTooltip,
-        canvasTooltipActivo
-      );
+      actualizarTooltip(ultimoPunteroTooltip, canvasTooltipActivo);
     }
-
     return;
   }
 
-  try {
-    const nivel = elementos.nivelViento.value;
+  const nivel = elementos.nivelViento.value;
+  const periodoA = leerPeriodo(elementos.periodoA.value);
+  const periodoB = leerPeriodo(elementos.periodoB.value);
+  const frame = frameActual;
 
-    const periodoA = leerPeriodo(elementos.periodoA.value);
-    const periodoB = leerPeriodo(elementos.periodoB.value);
+  vientoActualA = { periodo: periodoA, frame, nivel };
+  vientoActualB = { periodo: periodoB, frame, nivel };
 
-    const [campoA, campoB] = await Promise.all([
-      obtenerVientoFrame(periodoA, frameActual, nivel),
-      obtenerVientoFrame(periodoB, frameActual, nivel)
-    ]);
+  const tareas = [
+    [elementos.windA, periodoA],
+    [elementos.windB, periodoB]
+  ].map(([canvas, periodo]) => {
+    const enCache = obtenerStreamlinesEnCache(periodo, frame, nivel);
 
-    // Ignorar resultados antiguos o cargas que ya no se necesitan.
-    if (
-      idSolicitud !== solicitudViento ||
-      !elementos.mostrarVientos.checked ||
-      nivel !== elementos.nivelViento.value
-    ) {
-      return;
+    if (enCache) {
+      dibujarStreamlines(canvas, enCache);
+      return Promise.resolve();
     }
 
-    vientoActualA = campoA;
-    vientoActualB = campoB;
+    // Se dibuja en cuanto llegue, si sigue siendo el frame actual.
+    return solicitarStreamlines(periodo, frame, nivel)
+      .then((r) => {
+        if (
+          idSolicitud === solicitudViento ||
+          (frame === frameActual && nivel === elementos.nivelViento.value &&
+           elementos.mostrarVientos.checked)
+        ) {
+          dibujarStreamlines(canvas, r);
+        }
+      })
+      .catch((error) => {
+        if (idSolicitud === solicitudViento) {
+          console.error("Error cargando viento:", error);
+        }
+      });
+  });
 
-    dibujarStreamlines(elementos.windA, campoA);
-    dibujarStreamlines(elementos.windB, campoB);
+  const todas = Promise.all(tareas);
 
-    if (ultimoPunteroTooltip && canvasTooltipActivo) {
-      actualizarTooltip(
-        ultimoPunteroTooltip,
-        canvasTooltipActivo
-      );
-    }
-  } catch (error) {
-    if (idSolicitud === solicitudViento) {
-      console.error("Error cargando viento:", error);
-    }
+  if (Number.isFinite(esperaMaxima)) {
+    await Promise.race([todas, esperar(esperaMaxima)]);
+  } else {
+    await todas;
+  }
+
+  if (idSolicitud === solicitudViento && ultimoPunteroTooltip && canvasTooltipActivo) {
+    actualizarTooltip(ultimoPunteroTooltip, canvasTooltipActivo);
   }
 }
 
-/*PARA EL TOOLTIP================================*/
+// ------------------------------------------------------------
+// VIENTO PARA EL TOOLTIP (lectura directa del binario)
+// ------------------------------------------------------------
+
+const metadataVientoTooltip = new Map();
+const datosVientoTooltip = new Map();
+
+function cargarPerezoso(mapa, clave, cargador) {
+  let e = mapa.get(clave);
+  if (!e) {
+    e = { listo: false, valor: null };
+    mapa.set(clave, e);
+    cargador().then(
+      (v) => {
+        e.valor = v;
+        e.listo = true;
+        if (ultimoPunteroTooltip && canvasTooltipActivo) {
+          actualizarTooltip(ultimoPunteroTooltip, canvasTooltipActivo);
+        }
+      },
+      (error) => {
+        console.error(error);
+        mapa.delete(clave);
+      }
+    );
+  }
+  return e;
+}
+
+function metaVientoTooltip(nivel) {
+  return cargarPerezoso(metadataVientoTooltip, nivel, async () => {
+    const r = await fetch(`${CONFIG.windBasePath}${nivel}/metadata.json`);
+    if (!r.ok) throw new Error(`No se pudo cargar metadata del viento: ${nivel}`);
+    return r.json();
+  });
+}
+
+function anioVientoTooltip(nivel, anio) {
+  const e = cargarPerezoso(datosVientoTooltip, `${nivel}/${anio}`, async () => {
+    const r = await fetch(`${CONFIG.windBasePath}${nivel}/${anio}.bin`);
+    if (!r.ok) throw new Error(`No se pudo cargar viento: ${nivel}/${anio}`);
+    return new Int16Array(await r.arrayBuffer());
+  });
+  while (datosVientoTooltip.size > 8) {
+    datosVientoTooltip.delete(datosVientoTooltip.keys().next().value);
+  }
+  return e;
+}
+
+function obtenerVelocidadViento(estado, nx, ny) {
+  if (!estado) return null;
+
+  const meta = metaVientoTooltip(estado.nivel);
+  if (!meta.listo) return null;
+
+  const m = meta.valor;
+  const info = infoFrame(estado.periodo, estado.frame);
+  const dA = anioVientoTooltip(estado.nivel, info.anio);
+  if (!dA.listo) return null;
+
+  let dB = null;
+  if (info.alpha > 0) {
+    const e = info.anioSig === info.anio ? dA : anioVientoTooltip(estado.nivel, info.anioSig);
+    if (!e.listo) return null;
+    dB = e.valor;
+  }
+
+  const W = m.width;
+  const H = m.height;
+  const n = W * H;
+  const escala = m.encoding.scale;
+  const faltante = m.encoding.missingValue;
+
+  let x = nx * (W - 1);
+  const y = ny * (H - 1);
+  x = ((x % W) + W) % W;
+  if (y < 0 || y >= H - 1) return null;
+
+  const x0 = Math.floor(x);
+  const y0 = Math.floor(y);
+  const x1 = (x0 + 1) % W;
+  const y1 = Math.min(y0 + 1, H - 1);
+  const fx = x - x0;
+  const fy = y - y0;
+  const indices = [y0 * W + x0, y0 * W + x1, y1 * W + x0, y1 * W + x1];
+  const pesos = [(1 - fx) * (1 - fy), fx * (1 - fy), (1 - fx) * fy, fx * fy];
+
+  const leer = (datos, mes) => {
+    const off = mes * n * 2;
+    if (off + n * 2 > datos.length) return null;
+    let u = 0;
+    let v = 0;
+    for (let k = 0; k < 4; k++) {
+      const uu = datos[off + indices[k]];
+      const vv = datos[off + n + indices[k]];
+      if (uu === faltante || vv === faltante) return null;
+      u += uu * pesos[k];
+      v += vv * pesos[k];
+    }
+    return { u: u * escala, v: v * escala };
+  };
+
+  let r = leer(dA.valor, info.mes);
+  if (!r) return null;
+
+  if (dB) {
+    const s = leer(dB, info.mesSig);
+    if (!s) return null;
+    r = {
+      u: r.u * (1 - info.alpha) + s.u * info.alpha,
+      v: r.v * (1 - info.alpha) + s.v * info.alpha
+    };
+  }
+
+  return { u: r.u, v: r.v, velocidad: Math.hypot(r.u, r.v) };
+}
+
+// ============================================================
+// TOOLTIP
+// ============================================================
+
 function numeroTooltip(valor, decimales = 2, unidad = "") {
   if (!Number.isFinite(valor)) return "Sin datos";
-
   return `${valor.toFixed(decimales)}${unidad}`;
-  }
+}
 
 function muestrearSST(datos, nx, ny) {
-  if (!datos || !datos.valores) return NaN;
+  if (!datos) return NaN;
 
-  const x = Math.max(
-    0,
-    Math.min(datos.ancho - 1, Math.round(nx * (datos.ancho - 1)))
-  );
+  const x = Math.max(0, Math.min(datos.ancho - 1, Math.round(nx * (datos.ancho - 1))));
+  const y = Math.max(0, Math.min(datos.alto - 1, Math.round(ny * (datos.alto - 1))));
+  const gris = grisInterpolado(datos.g0, datos.g1, datos.alpha, y * datos.ancho + x);
 
-  const y = Math.max(
-    0,
-    Math.min(datos.alto - 1, Math.round(ny * (datos.alto - 1)))
-  );
+  if (gris === 0) return NaN;
 
-  return datos.valores[y * datos.ancho + x];
-  }
-
-function obtenerVelocidadViento(campo, nx, ny) {
-  if (!campo) return null;
-
-  const x = nx * (campo.width - 1);
-  const y = ny * (campo.height - 1);
-
-  const viento = muestrearViento(campo, x, y);
-
-  if (!viento || !Number.isFinite(viento.u) ||
-      !Number.isFinite(viento.v)) {
-    return null;
-  }
-
-  return {
-    u: viento.u,
-    v: viento.v,
-    velocidad: Math.hypot(viento.u, viento.v)
-  };
-  }
-
-let solicitudTooltip = 0;
-let ultimoPunteroTooltip = null;
-let canvasTooltipActivo = null;
+  return escalaActual.min + ((gris - 1) / 254) * (escalaActual.max - escalaActual.min);
+}
 
 function obtenerAreaImagen(canvas) {
   const rect = canvas.getBoundingClientRect();
 
-  if (
-    rect.width <= 0 ||
-    rect.height <= 0 ||
-    canvas.width <= 0 ||
-    canvas.height <= 0
-  ) {
+  if (rect.width <= 0 || rect.height <= 0 || canvas.width <= 0 || canvas.height <= 0) {
     return null;
   }
 
-  // Proporción de la imagen original y del canvas visible.
   const proporcionImagen = canvas.width / canvas.height;
   const proporcionCanvas = rect.width / rect.height;
 
-  let ancho, alto;
+  let ancho;
+  let alto;
 
-  // Equivale a calcular el área ocupada por una imagen
-  // con object-fit: contain.
   if (proporcionImagen > proporcionCanvas) {
     ancho = rect.width;
     alto = ancho / proporcionImagen;
@@ -2711,11 +1272,11 @@ function obtenerAreaImagen(canvas) {
     height: alto
   };
 }
-async function actualizarTooltip(evento, canvas) {
-  const idSolicitud = ++solicitudTooltip;
+
+function actualizarTooltip(evento, canvas) {
+  solicitudTooltip++;
   const tooltip = elementos.tooltipDatos;
 
-  // Si el tooltip está desactivado, no mostrar información.
   if (!elementos.mostrarTooltip.checked) {
     tooltip.hidden = true;
     return;
@@ -2723,14 +1284,8 @@ async function actualizarTooltip(evento, canvas) {
 
   const area = obtenerAreaImagen(canvas);
 
-  if (!area) {
-    tooltip.hidden = true;
-    return;
-  }
-
-  // Comprobar que el mouse está sobre la imagen,
-  // no solamente dentro del canvas.
   if (
+    !area ||
     evento.clientX < area.left ||
     evento.clientX >= area.left + area.width ||
     evento.clientY < area.top ||
@@ -2740,98 +1295,54 @@ async function actualizarTooltip(evento, canvas) {
     return;
   }
 
-  // Coordenadas normalizadas respecto a la imagen real.
   const nx = (evento.clientX - area.left) / area.width;
   const ny = (evento.clientY - area.top) / area.height;
 
-  // Coordenadas geográficas mostradas.
   const longitud360 = nx * 360;
   const longitud = ((longitud360 + 180) % 360) - 180;
   const latitud = 90 - ny * 180;
 
-  // Capturar el estado actual.
-  const frame = frameActual;
-  const valorA = elementos.periodoA.value;
-  const valorB = elementos.periodoB.value;
   const modo = elementos.modoDatos.value;
   const nivel = elementos.nivelViento.value;
+  const periodoA = leerPeriodo(elementos.periodoA.value);
+  const periodoB = leerPeriodo(elementos.periodoB.value);
 
-  if (!valorA || !valorB || !modo) return;
+  if (!datosActualesA || !datosActualesB) return;
 
-  // Convertir los valores del selector en objetos de periodo.
-  const periodoA = leerPeriodo(valorA);
-  const periodoB = leerPeriodo(valorB);
+  const valorCampoA = muestrearSST(datosActualesA, nx, ny);
+  const valorCampoB = muestrearSST(datosActualesB, nx, ny);
 
-  try {
-    const [datosA, datosB] = await Promise.all([
-      obtenerValoresPeriodo(periodoA, modo, frame),
-      obtenerValoresPeriodo(periodoB, modo, frame)
-    ]);
+  const vientoA = obtenerVelocidadViento(vientoActualA, nx, ny);
+  const vientoB = obtenerVelocidadViento(vientoActualB, nx, ny);
 
-    // Ignorar resultados obsoletos.
-    if (
-      idSolicitud !== solicitudTooltip ||
-      frame !== frameActual ||
-      valorA !== elementos.periodoA.value ||
-      valorB !== elementos.periodoB.value ||
-      modo !== elementos.modoDatos.value ||
-      nivel !== elementos.nivelViento.value
-    ) {
-      return;
-    }
+  const velocidadA = vientoA?.velocidad ?? NaN;
+  const velocidadB = vientoB?.velocidad ?? NaN;
 
-    const valorCampoA = muestrearSST(datosA, nx, ny);
-    const valorCampoB = muestrearSST(datosB, nx, ny);
+  const etiquetaVariable = modo === "anomaly" ? "Anomalía SST" : "SST absoluta";
+  const unidadTemperatura = " °C";
 
-    const vientoA = obtenerVelocidadViento(
-      vientoActualA, nx, ny
-    );
-
-    const vientoB = obtenerVelocidadViento(
-      vientoActualB, nx, ny
-    );
-
-    const velocidadA = vientoA?.velocidad ?? NaN;
-    const velocidadB = vientoB?.velocidad ?? NaN;
-
-    const etiquetaVariable =
-      modo === "anomaly"
-        ? "Anomalía SST"
-        : "SST absoluta";
-
-    const unidadTemperatura = " °C";
-
-    tooltip.innerHTML = `
+  tooltip.innerHTML = `
   <div class="tooltip-coordenadas">
     <span>Lat: <strong>${latitud.toFixed(2)}°</strong></span>
     <span>Lon: <strong>${longitud.toFixed(2)}°</strong></span>
   </div>
 
   <div class="tooltip-comparacion">
-
     <div class="tooltip-columna">
-      <div class="tooltip-periodo">
-        Periodo A
-      </div>
-      <div class="tooltip-anio">
-        ${periodoA.inicio}–${periodoA.fin}
-      </div>
-
+      <div class="tooltip-periodo">Periodo A</div>
+      <div class="tooltip-anio">${periodoA.inicio}–${periodoA.fin}</div>
       <div class="tooltip-dato">
         ${etiquetaVariable}
         <strong>${numeroTooltip(valorCampoA, 2, unidadTemperatura)}</strong>
       </div>
-
       <div class="tooltip-dato">
         Velocidad del viento (${nivel})
         <strong>${numeroTooltip(velocidadA, 2, " m/s")}</strong>
       </div>
-
       <div class="tooltip-dato">
         U (este-oeste)
         <strong>${numeroTooltip(vientoA?.u ?? NaN, 2, " m/s")}</strong>
       </div>
-
       <div class="tooltip-dato">
         V (norte-sur)
         <strong>${numeroTooltip(vientoA?.v ?? NaN, 2, " m/s")}</strong>
@@ -2839,44 +1350,33 @@ async function actualizarTooltip(evento, canvas) {
     </div>
 
     <div class="tooltip-columna">
-      <div class="tooltip-periodo">
-        Periodo B
-      </div>
-      <div class="tooltip-anio">
-        ${periodoB.inicio}–${periodoB.fin}
-      </div>
-
+      <div class="tooltip-periodo">Periodo B</div>
+      <div class="tooltip-anio">${periodoB.inicio}–${periodoB.fin}</div>
       <div class="tooltip-dato">
         ${etiquetaVariable}
         <strong>${numeroTooltip(valorCampoB, 2, unidadTemperatura)}</strong>
       </div>
-
       <div class="tooltip-dato">
         Velocidad del viento (${nivel})
         <strong>${numeroTooltip(velocidadB, 2, " m/s")}</strong>
       </div>
-
       <div class="tooltip-dato">
         U (este-oeste)
         <strong>${numeroTooltip(vientoB?.u ?? NaN, 2, " m/s")}</strong>
       </div>
-
       <div class="tooltip-dato">
         V (norte-sur)
         <strong>${numeroTooltip(vientoB?.v ?? NaN, 2, " m/s")}</strong>
       </div>
     </div>
-
   </div>
 
   <div class="tooltip-diferencia">
     <strong>Diferencia (B − A)</strong>
-
     <div class="tooltip-diferencia-fila">
       <span>${etiquetaVariable}</span>
       <strong>${numeroTooltip(valorCampoB - valorCampoA, 2, unidadTemperatura)}</strong>
     </div>
-
     <div class="tooltip-diferencia-fila">
       <span>Velocidad del viento (${nivel})</span>
       <strong>${numeroTooltip(velocidadB - velocidadA, 2, " m/s")}</strong>
@@ -2890,89 +1390,67 @@ async function actualizarTooltip(evento, canvas) {
   </div>
 `;
 
-    tooltip.hidden = false;
+  tooltip.hidden = false;
 
-    const margen = 12;
-    const ancho = tooltip.offsetWidth;
-    const alto = tooltip.offsetHeight;
+  const margen = 12;
+  const ancho = tooltip.offsetWidth;
+  const alto = tooltip.offsetHeight;
 
-    const izquierda = Math.max(
-      margen,
-      Math.min(
-        evento.clientX + 14,
-        window.innerWidth - ancho - margen
-      )
-    );
+  const izquierda = Math.max(
+    margen,
+    Math.min(evento.clientX + 14, window.innerWidth - ancho - margen)
+  );
 
-    const arriba = Math.max(
-      margen,
-      Math.min(
-        evento.clientY + 14,
-        window.innerHeight - alto - margen
-      )
-    );
+  const arriba = Math.max(
+    margen,
+    Math.min(evento.clientY + 14, window.innerHeight - alto - margen)
+  );
 
-    tooltip.style.left = `${izquierda}px`;
-    tooltip.style.top = `${arriba}px`;
-
-  } catch (error) {
-    console.error(
-      "Error al consultar los datos del tooltip:",
-      error
-    );
-  }
+  tooltip.style.left = `${izquierda}px`;
+  tooltip.style.top = `${arriba}px`;
 }
 
 function configurarTooltip() {
   const tooltip = elementos.tooltipDatos;
 
   // En móviles, cerrar el tooltip al tocar fuera de los mapas.
-  document.addEventListener("pointerdown", evento => {
+  document.addEventListener("pointerdown", (evento) => {
     if (!window.matchMedia("(pointer: coarse)").matches) return;
-    if (elementos.tooltipDatos.hidden) return;
+    if (tooltip.hidden) return;
 
-    // Si el toque fue en alguno de los mapas, mantenerlo.
-    const mapa = evento.target.closest(
-      "#canvasA, #canvasB, #windA, #windB"
-    );
+    if (evento.target.closest("#canvasA, #canvasB, #windA, #windB")) return;
 
-    if (mapa) return;
-
-    // Si el toque fue fuera de los mapas, cerrar el tooltip.
     ultimoPunteroTooltip = null;
     canvasTooltipActivo = null;
     solicitudTooltip++;
-
-    elementos.tooltipDatos.hidden = true;
+    tooltip.hidden = true;
   });
 
-  [elementos.canvasA, elementos.canvasB].forEach(canvas => {
+  // Limitar las actualizaciones del tooltip a una por fotograma.
+  let pendiente = false;
 
-    // Detectar movimiento del mouse o del dedo.
-    canvas.addEventListener("pointermove", evento => {
+  const programar = (evento, canvas) => {
+    ultimoPunteroTooltip = { clientX: evento.clientX, clientY: evento.clientY };
+    canvasTooltipActivo = canvas;
 
-      // En dispositivos táctiles, responder al dedo.
-      if (evento.pointerType === "touch") {
-        evento.preventDefault();
+    if (pendiente) return;
+    pendiente = true;
+
+    requestAnimationFrame(() => {
+      pendiente = false;
+      if (ultimoPunteroTooltip && canvasTooltipActivo) {
+        actualizarTooltip(ultimoPunteroTooltip, canvasTooltipActivo);
       }
+    });
+  };
 
-      ultimoPunteroTooltip = {
-        clientX: evento.clientX,
-        clientY: evento.clientY
-      };
-
-      canvasTooltipActivo = canvas;
-
-      actualizarTooltip(
-        ultimoPunteroTooltip,
-        canvas
-      );
+  [elementos.canvasA, elementos.canvasB].forEach((canvas) => {
+    canvas.addEventListener("pointermove", (evento) => {
+      if (evento.pointerType === "touch") evento.preventDefault();
+      programar(evento, canvas);
     });
 
-    // En PC, ocultar al salir con el mouse.
-    // En móviles, no ocultar al terminar cada gesto.
-    canvas.addEventListener("pointerleave", evento => {
-
+    canvas.addEventListener("pointerleave", (evento) => {
       if (evento.pointerType === "touch") return;
 
       if (canvasTooltipActivo === canvas) {
@@ -2983,44 +1461,18 @@ function configurarTooltip() {
       }
     });
 
-    // Mantener el tooltip activo al tocar y deslizar.
-    canvas.addEventListener("pointerdown", evento => {
-
+    canvas.addEventListener("pointerdown", (evento) => {
       if (evento.pointerType !== "touch") return;
-
-      ultimoPunteroTooltip = {
-        clientX: evento.clientX,
-        clientY: evento.clientY
-      };
-
-      canvasTooltipActivo = canvas;
-
-      actualizarTooltip(
-        ultimoPunteroTooltip,
-        canvas
-      );
+      programar(evento, canvas);
     });
 
-    // Evitar que el gesto táctil pierda el puntero
-    // cuando el navegador permite capturarlo.
-    canvas.addEventListener("pointerup", evento => {
-
+    canvas.addEventListener("pointerup", (evento) => {
       if (evento.pointerType !== "touch") return;
-
-      ultimoPunteroTooltip = {
-        clientX: evento.clientX,
-        clientY: evento.clientY
-      };
-
-      canvasTooltipActivo = canvas;
-
-      actualizarTooltip(
-        ultimoPunteroTooltip,
-        canvas
-      );
+      programar(evento, canvas);
     });
   });
 }
+
 // ------------------------------------------------------------
 // EJECUTAR
 // ------------------------------------------------------------
