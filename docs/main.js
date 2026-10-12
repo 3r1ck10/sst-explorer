@@ -3,7 +3,7 @@
    -------------------------------------------------------------
    - Mapas renderizados en GPU (Three.js / WebGL2): la paleta,
      la interpolación entre meses y la diferencia B − A se
-     calculan en el shader, no en la CPU.
+     calculan en el shader, no en la CPU.a
    - Solo se descargan los fotogramas mensuales; la transición
      entre meses se interpola de forma continua en la GPU.
    - Los PNG se decodifican en Web Workers (sin bloquear la UI).
