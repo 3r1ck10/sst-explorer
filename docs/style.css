@@ -680,13 +680,21 @@ select option { background: var(--surface-solid); }
 
 .timeline { min-width: 0; }
 
+/* Fechas A y B centradas, una encima de otra: muestran el mismo
+   instante en cada periodo (no un rango de A a B). */
 .timeline-readout {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
   margin-bottom: 4px;
   font-family: var(--mono);
   font-size: 0.8rem;
+  line-height: 1.25;
+}
+
+.timeline-readout .ro {
+  min-width: 110px;
 }
 
 .ro { display: inline-flex; align-items: center; gap: 7px; }
