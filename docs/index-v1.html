@@ -1,0 +1,192 @@
+﻿
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SST Explorer | Comparación climática</title>
+  <link rel="stylesheet" href="style-v1.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div>
+      <h1>SST Explorer</h1>
+      <p>Explorador de temperatura superficial del mar</p>
+    </div>
+
+    <div class="variable-control">
+      <label for="modoDatos">Variable</label>
+      <select id="modoDatos">
+        <option value="anomaly">Anomalías (°C)</option>
+        <option value="sst">SST (°C)</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <section class="period-controls">
+      <!-- Primera fila: controles actuales -->
+    <div class="period-row">
+      <div class="period-selector">
+        <label for="periodoA">Periodo A</label>
+        <select id="periodoA"></select>
+      </div>
+
+      <div class="period-selector">
+        <label for="periodoB">Periodo B</label>
+        <select id="periodoB"></select>
+      </div>
+      <div class="period-selector">
+        <label for="nivelViento">Nivel de viento</label>
+        <select id="nivelViento">
+          <option value="10m">10 m (superficie)</option>
+          <option value="850hpa">850 hPa</option>
+          <option value="500hpa">500 hPa</option>
+          <option value="250hpa">250 hPa</option>
+        </select>
+      </div>
+      <div class="period-selector">
+        <label>
+          <input type="checkbox" id="mostrarVientos" checked>
+          Mostrar vientos
+        </label>
+      </div>
+
+      <div class="period-selector">
+        <label>
+          <input type="checkbox" id="mostrarTooltip" checked>
+          Mostrar valores
+        </label>
+      </div>
+      <div class="map-size-control">
+        <label for="mapSize">Tamaño de mapas</label>
+
+        <input
+               id="mapSize"
+                type="range"
+                min="130"
+                max="360"
+                value="300"
+                step="10"
+        >
+
+        <span id="mapSizeValue">300 px</span>
+        </div>
+      <div class="playback-controls">
+        <button id="btnPlay" type="button">▶ Reproducir</button>
+        <label for="velocidad">Velocidad</label>
+        <select id="velocidad">
+          <option value="80">Lenta</option>
+          <option value="50" selected>Normal</option>
+          <option value="25">Rápida</option>
+        </select>
+      </div>
+      <!-- Aquí deja todos los controles que ya tienes arriba -->
+    </div>
+    <!-- Segunda fila: navegación mensual -->
+    <div class="period-row controles-mensuales">
+      <button id="btnMesAnterior" type="button">
+        ◀ Mes anterior
+      </button>
+
+      <button id="btnMesSiguiente" type="button">
+        Mes siguiente ▶
+      </button>
+    </div>
+    </section>
+    <section class="timeline-panel">
+      <div class="timeline-labels">
+        <span id="timelineStart">Inicio</span>
+        <span id="frameCounter">Frame 0</span>
+        <span id="timelineEnd">Fin</span>
+      </div>
+
+      <input
+        id="timeline"
+        type="range"
+        min="0"
+        max="0"
+        value="0"
+        step="1"
+      >
+    </section>
+
+    <section class="maps-grid">
+      <article class="map-panel">
+        <div class="panel-heading">
+          <h2>Periodo A</h2>
+          <span id="fechaA">—</span>
+        </div>
+        <div class="map-container">
+          <canvas id="canvasA"></canvas>
+          <canvas id="windA"></canvas>
+        </div>
+        <div class="legend">
+          <span id="minA">—</span>
+          <div class="legend-gradient" id="legendA"></div>
+          <span id="maxA">—</span>
+        </div>
+      </article>
+
+      <article class="map-panel difference-panel">
+        <div class="panel-heading">
+          <h2>Diferencia (B − A)</h2>
+          <span id="fechaDiff">—</span>
+        </div>
+        <canvas id="canvasDiff"></canvas>
+        <div class="legend">
+          <span id="minDiff">—</span>
+          <div class="legend-gradient" id="legendDiff"></div>
+          <span id="maxDiff">—</span>
+        </div>
+      </article>
+
+      <article class="map-panel">
+        <div class="panel-heading">
+          <h2>Periodo B</h2>
+          <span id="fechaB">—</span>
+        </div>
+        <div class="map-container">
+            <canvas id="canvasB"></canvas>
+            <canvas id="windB"></canvas>
+        </div>
+        <div class="legend">
+          <span id="minB">—</span>
+          <div class="legend-gradient" id="legendB"></div>
+          <span id="maxB">—</span>
+        </div>
+      </article>
+
+      <article class="map-panel info-panel">
+        <h2>Sobre la comparación</h2>
+        <p>
+          Explora la evolución mensual de la temperatura superficial del mar
+          y compara dos periodos. La diferencia se calcula como:
+        </p>
+        <div class="equation">B − A</div>
+        <p class="small-note">
+          Por otro lado, en el modo de anomalías, los valores representan desviaciones
+          respecto a la climatología mensual de referencia 1980 - 2010.
+        </p>
+        <p class="small-note">
+          Toda la informacion en este dashboard es respecto a datos mensuales.
+        </p>
+        <p class="small-note">
+          La primera imagen de cada mes representa el promedio de ese mes (los demas son transiciones hacia el siguiente mes).
+        </p>
+        <a class="noaa-link" href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/" target="_blank" rel="noopener noreferrer" > Ver años de El Niño y La Niña (NOAA) ↗ </a>
+      </article>
+    </section>
+
+    
+    <div id="tooltipDatos" class="tooltip-datos" role="status" aria-live="polite" hidden></div>
+  </main>
+
+  <footer>
+    <p>SST Explorer · Visualización de datos climáticos</p>
+  </footer>
+
+  <script src="main-v1.js"></script>
+</body>
+</html>

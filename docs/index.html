@@ -1,192 +1,261 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SST Explorer | Comparación climática</title>
+  <title>SST Explorer · El Niño 1980–2026</title>
+  <meta name="description" content="Explorador interactivo de temperatura superficial del mar, anomalías y vientos para analizar El Niño y La Niña (1980–2026).">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 
 <body>
-  <header class="topbar">
-    <div>
-      <h1>SST Explorer</h1>
-      <p>Explorador de temperatura superficial del mar</p>
-    </div>
+  <div class="app">
 
-    <div class="variable-control">
-      <label for="modoDatos">Variable</label>
-      <select id="modoDatos">
-        <option value="anomaly">Anomalías (°C)</option>
-        <option value="sst">SST (°C)</option>
-      </select>
-    </div>
-  </header>
-
-  <main>
-    <section class="period-controls">
-      <!-- Primera fila: controles actuales -->
-    <div class="period-row">
-      <div class="period-selector">
-        <label for="periodoA">Periodo A</label>
-        <select id="periodoA"></select>
+    <!-- =====================================================
+         CABECERA
+         ===================================================== -->
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 40 40" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#5ad1ff"/>
+              <stop offset="1" stop-color="#ff8a4c"/>
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="url(#lg)" stroke-width="2.5"/>
+          <path d="M5 22c4-4 7-4 10 0s7 4 10 0 7-4 10 0" fill="none" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M8 14c3-2.5 6-2.5 9 0" fill="none" stroke="#5ad1ff" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+        </svg>
+        <div>
+          <h1>SST Explorer</h1>
+          <p>Análisis de El Niño y La Niña · 1980–2026</p>
+        </div>
       </div>
 
-      <div class="period-selector">
-        <label for="periodoB">Periodo B</label>
-        <select id="periodoB"></select>
+      <div class="top-controls">
+        <div class="seg" id="segVariable" role="radiogroup" aria-label="Variable">
+          <button type="button" data-value="anomaly" class="is-on">Anomalía</button>
+          <button type="button" data-value="sst">SST absoluta</button>
+        </div>
+
+        <div class="seg" id="segVista" role="radiogroup" aria-label="Vista">
+          <button type="button" data-value="2d" class="is-on">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>Mapa
+          </button>
+          <button type="button" data-value="globe">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Globo 3D
+          </button>
+        </div>
+
+        <div class="seg" id="segPaleta" role="radiogroup" aria-label="Paleta">
+          <button type="button" data-value="moderna" class="is-on">Moderna</button>
+          <button type="button" data-value="clasica">Clásica</button>
+        </div>
       </div>
-      <div class="period-selector">
-        <label for="nivelViento">Nivel de viento</label>
-        <select id="nivelViento">
-          <option value="10m">10 m (superficie)</option>
-          <option value="850hpa">850 hPa</option>
-          <option value="500hpa">500 hPa</option>
-          <option value="250hpa">250 hPa</option>
-        </select>
-      </div>
-      <div class="period-selector">
-        <label>
-          <input type="checkbox" id="mostrarVientos" checked>
-          Mostrar vientos
+    </header>
+
+    <!-- =====================================================
+         BARRA DE HERRAMIENTAS
+         ===================================================== -->
+    <section class="toolbar">
+      <div class="tool-group periods">
+        <label class="field">
+          <span class="field-label"><i class="dot dot-a"></i>Periodo A</span>
+          <select id="periodoA"></select>
+        </label>
+
+        <button type="button" class="icon-btn" id="btnSwap" title="Intercambiar A y B" aria-label="Intercambiar A y B">
+          <svg viewBox="0 0 24 24"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg>
+        </button>
+
+        <label class="field">
+          <span class="field-label"><i class="dot dot-b"></i>Periodo B</span>
+          <select id="periodoB"></select>
         </label>
       </div>
 
-      <div class="period-selector">
-        <label>
-          <input type="checkbox" id="mostrarTooltip" checked>
-          Mostrar valores
-        </label>
+      <div class="tool-group presets">
+        <span class="field-label">Eventos</span>
+        <div class="chips" id="presets"></div>
       </div>
-      <div class="map-size-control">
-        <label for="mapSize">Tamaño de mapas</label>
 
-        <input
-               id="mapSize"
-                type="range"
-                min="130"
-                max="360"
-                value="300"
-                step="10"
-        >
+      <div class="tool-group layers">
+        <label class="field">
+          <span class="field-label">Región</span>
+          <select id="region">
+            <option value="global">Global</option>
+            <option value="pacifico">Pacífico tropical</option>
+            <option value="nino34">Niño 3.4</option>
+            <option value="peru">Costa de Perú / Niño 1+2</option>
+            <option value="custom" hidden>Personalizada</option>
+          </select>
+        </label>
 
-        <span id="mapSizeValue">300 px</span>
+        <div class="field">
+          <span class="field-label">Viento</span>
+          <div class="wind-row">
+            <label class="switch" title="Mostrar partículas de viento">
+              <input type="checkbox" id="mostrarVientos" checked>
+              <span class="switch-track"></span>
+            </label>
+            <select id="nivelViento">
+              <option value="10m">10 m</option>
+              <option value="850hpa">850 hPa</option>
+              <option value="500hpa">500 hPa</option>
+              <option value="250hpa">250 hPa</option>
+            </select>
+          </div>
         </div>
-      <div class="playback-controls">
-        <button id="btnPlay" type="button">▶ Reproducir</button>
-        <label for="velocidad">Velocidad</label>
-        <select id="velocidad">
-          <option value="80">Lenta</option>
-          <option value="50" selected>Normal</option>
-          <option value="25">Rápida</option>
+
+        <div class="field">
+          <span class="field-label">Capas</span>
+          <div class="chips">
+            <button type="button" class="chip toggle is-on" data-toggle="iso">Isolíneas</button>
+            <button type="button" class="chip toggle is-on" data-toggle="regions">Regiones Niño</button>
+            <button type="button" class="chip toggle is-on" data-toggle="tooltip">Valores</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         MAPAS
+         ===================================================== -->
+    <main class="grid">
+      <article class="panel" id="panelA">
+        <header class="panel-head">
+          <span class="tag tag-a">A</span>
+          <div class="panel-title">
+            <h2 id="tituloA">—</h2>
+            <span class="panel-date" id="fechaA">—</span>
+          </div>
+          <span class="badge" id="badgeA">—</span>
+          <button type="button" class="icon-btn small btn-max" title="Ampliar" aria-label="Ampliar">
+            <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          </button>
+        </header>
+        <div class="view" id="viewA"></div>
+        <div class="legend" data-legend="main"></div>
+      </article>
+
+      <article class="panel" id="panelB">
+        <header class="panel-head">
+          <span class="tag tag-b">B</span>
+          <div class="panel-title">
+            <h2 id="tituloB">—</h2>
+            <span class="panel-date" id="fechaB">—</span>
+          </div>
+          <span class="badge" id="badgeB">—</span>
+          <button type="button" class="icon-btn small btn-max" title="Ampliar" aria-label="Ampliar">
+            <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          </button>
+        </header>
+        <div class="view" id="viewB"></div>
+        <div class="legend" data-legend="main"></div>
+      </article>
+
+      <article class="panel" id="panelD">
+        <header class="panel-head">
+          <span class="tag tag-d">B−A</span>
+          <div class="panel-title">
+            <h2>Diferencia</h2>
+            <span class="panel-date" id="fechaDiff">—</span>
+          </div>
+          <span class="badge neutral" id="badgeD">—</span>
+          <button type="button" class="icon-btn small btn-max" title="Ampliar" aria-label="Ampliar">
+            <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          </button>
+        </header>
+        <div class="view" id="viewD"></div>
+        <div class="legend" data-legend="diff"></div>
+      </article>
+
+      <article class="panel chart-panel">
+        <header class="panel-head">
+          <div class="panel-title">
+            <h2 id="chartTitle">Índice Niño 3.4</h2>
+            <span class="panel-date">5°N–5°S · 170°W–120°W</span>
+          </div>
+          <div class="chart-legend">
+            <span><i class="line line-a"></i><b id="chartLegA">A</b></span>
+            <span><i class="line line-b"></i><b id="chartLegB">B</b></span>
+          </div>
+        </header>
+        <div class="chart-wrap">
+          <svg id="ninoChart" role="img" aria-label="Serie del índice Niño 3.4 para los periodos A y B"></svg>
+        </div>
+        <details class="about">
+          <summary>Acerca de los datos</summary>
+          <p>Las anomalías son desviaciones respecto a la climatología mensual 1980–2010. Toda la información es mensual: entre un mes y el siguiente la animación interpola de forma continua.</p>
+          <p>El índice Niño 3.4 se calcula aquí, a partir de estos mismos mapas (promedio de la caja). Es una aproximación y puede diferir del ONI/RONI oficial.</p>
+          <p>Navegación: arrastra para mover el mapa, rueda o pellizco para acercar. <kbd>Espacio</kbd> reproduce/pausa, <kbd>←</kbd> <kbd>→</kbd> cambian de mes.</p>
+          <a class="ext-link" href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/" target="_blank" rel="noopener noreferrer">Años de El Niño y La Niña (NOAA) ↗</a>
+          <a class="ext-link" href="index-v1.html">Versión anterior del visualizador</a>
+        </details>
+      </article>
+    </main>
+
+    <!-- =====================================================
+         REPRODUCTOR
+         ===================================================== -->
+    <footer class="player">
+      <div class="player-buttons">
+        <button type="button" class="icon-btn" id="btnMesAnterior" title="Mes anterior (←)" aria-label="Mes anterior">
+          <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <button type="button" class="play-btn" id="btnPlay" title="Reproducir / pausar (Espacio)" aria-label="Reproducir">
+          <svg class="ico-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="ico-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="btnMesSiguiente" title="Mes siguiente (→)" aria-label="Mes siguiente">
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <select id="velocidad" title="Velocidad" aria-label="Velocidad">
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="2">2×</option>
+          <option value="4">4×</option>
         </select>
       </div>
-      <!-- Aquí deja todos los controles que ya tienes arriba -->
-    </div>
-    <!-- Segunda fila: navegación mensual -->
-    <div class="period-row controles-mensuales">
-      <button id="btnMesAnterior" type="button">
-        ◀ Mes anterior
-      </button>
 
-      <button id="btnMesSiguiente" type="button">
-        Mes siguiente ▶
-      </button>
-    </div>
-    </section>
-    <section class="timeline-panel">
-      <div class="timeline-labels">
-        <span id="timelineStart">Inicio</span>
-        <span id="frameCounter">Frame 0</span>
-        <span id="timelineEnd">Fin</span>
+      <div class="timeline">
+        <div class="timeline-readout">
+          <span class="ro ro-a"><i class="dot dot-a"></i><b id="roA">—</b></span>
+          <span class="ro ro-b"><i class="dot dot-b"></i><b id="roB">—</b></span>
+        </div>
+        <div class="timeline-track">
+          <input id="timeline" type="range" min="0" max="23" value="0" step="0.001" aria-label="Línea de tiempo">
+          <div class="timeline-ticks" id="timelineTicks"></div>
+        </div>
       </div>
 
-      <input
-        id="timeline"
-        type="range"
-        min="0"
-        max="0"
-        value="0"
-        step="1"
-      >
-    </section>
+      <div class="status" id="status" aria-live="polite"></div>
+    </footer>
+  </div>
 
-    <section class="maps-grid">
-      <article class="map-panel">
-        <div class="panel-heading">
-          <h2>Periodo A</h2>
-          <span id="fechaA">—</span>
-        </div>
-        <div class="map-container">
-          <canvas id="canvasA"></canvas>
-          <canvas id="windA"></canvas>
-        </div>
-        <div class="legend">
-          <span id="minA">—</span>
-          <div class="legend-gradient" id="legendA"></div>
-          <span id="maxA">—</span>
-        </div>
-      </article>
+  <div id="tooltip" class="tooltip" hidden></div>
 
-      <article class="map-panel difference-panel">
-        <div class="panel-heading">
-          <h2>Diferencia (B − A)</h2>
-          <span id="fechaDiff">—</span>
-        </div>
-        <canvas id="canvasDiff"></canvas>
-        <div class="legend">
-          <span id="minDiff">—</span>
-          <div class="legend-gradient" id="legendDiff"></div>
-          <span id="maxDiff">—</span>
-        </div>
-      </article>
+  <div id="loader" class="loader">
+    <div class="loader-card">
+      <div class="spinner"></div>
+      <p id="loaderText">Cargando datos…</p>
+    </div>
+  </div>
 
-      <article class="map-panel">
-        <div class="panel-heading">
-          <h2>Periodo B</h2>
-          <span id="fechaB">—</span>
-        </div>
-        <div class="map-container">
-            <canvas id="canvasB"></canvas>
-            <canvas id="windB"></canvas>
-        </div>
-        <div class="legend">
-          <span id="minB">—</span>
-          <div class="legend-gradient" id="legendB"></div>
-          <span id="maxB">—</span>
-        </div>
-      </article>
-
-      <article class="map-panel info-panel">
-        <h2>Sobre la comparación</h2>
-        <p>
-          Explora la evolución mensual de la temperatura superficial del mar
-          y compara dos periodos. La diferencia se calcula como:
-        </p>
-        <div class="equation">B − A</div>
-        <p class="small-note">
-          Por otro lado, en el modo de anomalías, los valores representan desviaciones
-          respecto a la climatología mensual de referencia 1980 - 2010.
-        </p>
-        <p class="small-note">
-          Toda la informacion en este dashboard es respecto a datos mensuales.
-        </p>
-        <p class="small-note">
-          La primera imagen de cada mes representa el promedio de ese mes (los demas son transiciones hacia el siguiente mes).
-        </p>
-        <a class="noaa-link" href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/" target="_blank" rel="noopener noreferrer" > Ver años de El Niño y La Niña (NOAA) ↗ </a>
-      </article>
-    </section>
-
-    
-    <div id="tooltipDatos" class="tooltip-datos" role="status" aria-live="polite" hidden></div>
-  </main>
-
-  <footer>
-    <p>SST Explorer · Visualización de datos climáticos</p>
-  </footer>
-
-  <script src="main.js"></script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
