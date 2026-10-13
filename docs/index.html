@@ -48,8 +48,8 @@
 
       <div class="top-controls">
         <div class="seg" id="segVariable" role="radiogroup" aria-label="Variable">
-          <button type="button" data-value="anomaly" class="is-on">Anomalía</button>
-          <button type="button" data-value="sst">SST absoluta</button>
+          <button type="button" data-value="anomaly" class="is-on" title="Anomalías respecto a 1980–2010 (SST, precipitación y vapor)">Anomalías</button>
+          <button type="button" data-value="sst" title="Valores absolutos (SST, precipitación y vapor)">Valores absolutos</button>
         </div>
 
         <div class="seg" id="segVista" role="radiogroup" aria-label="Vista">
@@ -134,6 +134,26 @@
             <button type="button" class="chip toggle is-on" data-toggle="tooltip">Valores</button>
           </div>
         </div>
+
+        <div class="field">
+          <span class="field-label">Variables</span>
+          <div class="chips">
+            <button type="button" class="chip toggle chip-sst is-on" data-toggle="sst" title="Mostrar u ocultar la temperatura del mar">
+              <i class="chip-swatch swatch-sst"></i>SST
+            </button>
+            <button type="button" class="chip toggle chip-precip" data-toggle="precip">
+              <i class="chip-swatch swatch-precip"></i>Precipitación
+            </button>
+            <button type="button" class="chip toggle chip-vapor" data-toggle="vapor">
+              <i class="chip-swatch swatch-vapor"></i>Vapor de agua
+            </button>
+          </div>
+        </div>
+
+        <label class="field" id="layerAlphaField" hidden>
+          <span class="field-label">Opacidad</span>
+          <input id="layerAlpha" type="range" min="20" max="100" value="100" step="5" aria-label="Opacidad de precipitación y vapor">
+        </label>
       </div>
     </section>
 

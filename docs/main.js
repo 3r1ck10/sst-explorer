@@ -26,7 +26,7 @@ const CONFIG = {
 
   maxConcurrent: 6,
   workers: 3,
-  frameCacheLimit: 150,
+  frameCacheLimit: 300,
   windCacheLimit: 16,
 
   display: {
@@ -41,6 +41,7 @@ const CONFIG = {
       sst: ['#042333', '#2c3395', '#744992', '#b15f82', '#eb7958', '#fbb43d', '#e8fa5b'],
       land: '#363d49',
       coast: '#a8b6cc',
+      oceanBase: '#141c29', // océano cuando la SST está oculta
       trailSlow: '#a9c4e6',
       trailFast: '#ffffff',
       windBar: 'linear-gradient(90deg, rgba(169,196,230,.25), #fff)'
@@ -50,6 +51,7 @@ const CONFIG = {
       sst: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#ffffbf', '#fdae61', '#f46d43', '#d73027', '#a50026'],
       land: '#2a3039',
       coast: '#0b0f15',
+      oceanBase: '#3b4553',
       trailSlow: '#2a3346',
       trailFast: '#05070c',
       windBar: 'linear-gradient(90deg, rgba(42,51,70,.25), #05070c)'
@@ -87,8 +89,46 @@ const CONFIG = {
   },
 
   // Caja Niño 3.4 (longitudes 0–360).
-  nino34: { lon0: 190, lon1: 240, lat0: -5, lat1: 5 }
+  nino34: { lon0: 190, lon1: 240, lat0: -5, lat1: 5 },
+
+  // Capas superpuestas (ERA5). Paletas RGBA: [posición, r, g, b, alfa].
+  // Transparentes cerca de cero para dejar ver la SST debajo.
+  layers: {
+    precip: {
+      label: 'Precipitación',
+      unit: 'mm/día',
+      totalMax: 20,      // tope de la paleta (valores absolutos)
+      signedMax: 8,      // ± tope de la paleta (anomalías y B − A)
+      total: [
+        [0, 150, 220, 255, 0], [0.05, 150, 220, 255, 0], [0.12, 120, 200, 255, 0.4],
+        [0.3, 60, 150, 255, 0.65], [0.55, 40, 80, 230, 0.8], [0.8, 110, 50, 210, 0.88],
+        [1, 210, 70, 230, 0.92]
+      ],
+      signed: [
+        [0, 130, 70, 20, 0.88], [0.22, 190, 120, 50, 0.65], [0.44, 215, 165, 95, 0],
+        [0.56, 90, 185, 255, 0], [0.78, 40, 130, 255, 0.65], [1, 30, 60, 220, 0.88]
+      ]
+    },
+    vapor: {
+      label: 'Vapor de agua',
+      unit: 'kg/m²',
+      totalMax: 65,
+      signedMax: 8,
+      total: [
+        [0, 120, 120, 125, 0], [0.18, 140, 140, 145, 0], [0.45, 190, 190, 195, 0.3],
+        [0.7, 225, 225, 230, 0.5], [1, 255, 255, 255, 0.7]
+      ],
+      // Anomalías: mostaza = más seco, blanco = más húmedo.
+      signed: [
+        [0, 185, 155, 10, 0.9], [0.25, 210, 180, 40, 0.65], [0.44, 225, 200, 90, 0],
+        [0.56, 255, 255, 255, 0], [0.75, 240, 240, 245, 0.45], [1, 255, 255, 255, 0.78]
+      ]
+    }
+  }
 };
+
+// Codificación de los PNG de cada capa -> vec4(tipo, min, max, -).
+const ENCODING_TYPES = { linear: 0, sqrt: 1, 'signed-linear': 2, 'signed-sqrt': 3 };
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const INICIALES = ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
@@ -119,9 +159,27 @@ const state = {
   iso: true,
   regions: true,
   tooltip: true,
+  sst: true,
+  precip: false,
+  vapor: false,
+  layerAlpha: 1,
+  layerMeta: {},   // metadata.json de cada capa (si existe)
   win: { cx: 180, cy: 0, zoom: 1 },
   hover: null
 };
+
+// Variable de FrameStore para una capa según el modo actual.
+function layerVariable(name) {
+  return `${name}/${state.variable === 'anomaly' ? 'anomaly' : 'total'}`;
+}
+
+function layerAvailable(name) {
+  return !!state.layerMeta[name];
+}
+
+function layerActive(name) {
+  return state[name] && layerAvailable(name);
+}
 
 // =============================================================
 // PERIODOS Y TIEMPO
@@ -302,8 +360,12 @@ const FrameStore = (() => {
   }
 
   async function load(e) {
-    const frame = String(e.month * CONFIG.framesPerMonth).padStart(4, '0');
-    const url = new URL(`data/${e.variable}/${e.year}/frame_${frame}.png`, location.href).href;
+    // SST: data/{sst|anomaly}/{año}/frame_XXXX.png (10 fotogramas por mes)
+    // Capas: data/{precip|vapor}/{total|anomaly}/{año}/{MM}.png (mensual)
+    const path = e.variable.includes('/')
+      ? `data/${e.variable}/${e.year}/${String(e.month + 1).padStart(2, '0')}.png`
+      : `data/${e.variable}/${e.year}/frame_${String(e.month * CONFIG.framesPerMonth).padStart(4, '0')}.png`;
+    const url = new URL(path, location.href).href;
     try {
       const r = await decode(url);
       const tex = new THREE.DataTexture(r.data, r.w, r.h, THREE.RedFormat, THREE.UnsignedByteType);
@@ -320,8 +382,22 @@ const FrameStore = (() => {
       listeners.forEach((fn) => fn(e));
       evict();
     } catch (err) {
-      e.status = 'error';
-      console.error('Error cargando fotograma', url, err);
+      // Reintentar fallos transitorios de red (hasta 3 veces). Si sigue
+      // fallando (p. ej. el archivo no existe) se marca como error.
+      e.retries = (e.retries || 0) + 1;
+      if (e.retries <= 3) {
+        e.status = 'retrying';
+        setTimeout(() => {
+          if (e.status === 'retrying') {
+            e.status = 'queued';
+            queue.unshift(e);
+            pump();
+          }
+        }, 600 * e.retries);
+      } else {
+        e.status = 'error';
+        console.error('Error cargando fotograma', url, err);
+      }
     }
   }
 
@@ -543,6 +619,51 @@ function paletteTexture(stops) {
   return tex;
 }
 
+// Interpola una paleta RGBA [pos, r, g, b, a] en n (0..1).
+function rgbaAt(stops, n) {
+  let j = 0;
+  while (j < stops.length - 2 && n > stops[j + 1][0]) j++;
+  const a = stops[j];
+  const b = stops[j + 1];
+  const f = clamp((n - a[0]) / (b[0] - a[0] || 1), 0, 1);
+  return [1, 2, 3, 4].map((k) => a[k] + (b[k] - a[k]) * f);
+}
+
+// Textura 256×4 con las paletas de las capas:
+// fila 0 vapor, 1 vapor (con signo), 2 precipitación, 3 precipitación (con signo).
+let layerPaletteTex = null;
+
+function layerPaletteTexture() {
+  if (layerPaletteTex) return layerPaletteTex;
+  const L = CONFIG.layers;
+  const rows = [L.vapor.total, L.vapor.signed, L.precip.total, L.precip.signed];
+  const N = 256;
+  const data = new Uint8Array(N * 4 * 4);
+  rows.forEach((stops, r) => {
+    for (let i = 0; i < N; i++) {
+      const [cr, cg, cb, ca] = rgbaAt(stops, i / (N - 1));
+      const o = (r * N + i) * 4;
+      data[o] = Math.round(cr);
+      data[o + 1] = Math.round(cg);
+      data[o + 2] = Math.round(cb);
+      data[o + 3] = Math.round(ca * 255);
+    }
+  });
+  const tex = new THREE.DataTexture(data, N, 4, THREE.RGBAFormat);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+  layerPaletteTex = tex;
+  return tex;
+}
+
+// Degradado CSS de una paleta RGBA (para las leyendas).
+function cssGradientRGBA(stops) {
+  return `linear-gradient(90deg, ${stops
+    .map(([p, r, g, b, a]) => `rgba(${r},${g},${b},${a}) ${(p * 100).toFixed(1)}%`)
+    .join(', ')})`;
+}
+
 function cssGradient(stops) {
   return `linear-gradient(90deg, ${stops.map((c, i) => `${c} ${(i / (stops.length - 1)) * 100}%`).join(', ')})`;
 }
@@ -576,10 +697,30 @@ precision highp int;
 
 uniform sampler2D tA0;
 uniform sampler2D tA1;
+#ifdef DIFF
 uniform sampler2D tB0;
 uniform sampler2D tB1;
+#endif
 uniform float uFrac;
-uniform float uDiff;
+
+// Capas superpuestas: precipitación (P) y vapor de agua (V).
+uniform sampler2D tP0;
+uniform sampler2D tP1;
+uniform sampler2D tV0;
+uniform sampler2D tV1;
+#ifdef DIFF
+uniform sampler2D tPB0;
+uniform sampler2D tPB1;
+uniform sampler2D tVB0;
+uniform sampler2D tVB1;
+#endif
+uniform vec2 uLayerOn;       // x: precipitación, y: vapor
+uniform vec4 uPEnc;          // tipo, min, max, máximo de la paleta
+uniform vec4 uVEnc;
+uniform float uLayerSigned;  // 1: anomalías o diferencias (paleta divergente)
+uniform float uLayerAlpha;   // opacidad general de las capas
+uniform sampler2D uLayerPal; // 4 filas: vapor, vapor±, precip, precip±
+
 uniform vec2 uDecode;      // min, rango de la codificación PNG
 uniform vec2 uRange;       // min, max de la paleta
 uniform sampler2D uPalette;
@@ -587,6 +728,8 @@ uniform float uIso;
 uniform float uIsoMajor;
 uniform vec3 uLand;
 uniform vec3 uCoast;
+uniform float uSstOn;      // 0: océano en color neutro (SST oculta)
+uniform vec3 uOceanBase;
 uniform float uRegions;
 uniform float uGrid;
 uniform vec4 uWin;
@@ -636,6 +779,71 @@ vec2 fieldAt(sampler2D t0, sampler2D t1, vec2 ll) {
   return vec2(mix(va, vb, uFrac), mix(a.y, b.y, uFrac));
 }
 
+// Decodifica un nivel de gris según el tipo de codificación de la capa.
+// e = (tipo, min, max, -): 0 lineal, 1 raíz, 2 lineal con signo, 3 raíz con signo.
+vec4 decodeLayer(vec4 g, vec4 e) {
+  if (e.x < 0.5) return e.y + (g - 1.0) / 254.0 * (e.z - e.y);
+  if (e.x < 1.5) { vec4 s = max(g - 1.0, 0.0) / 254.0; return e.z * s * s; }
+  vec4 s = (g - 128.0) / 127.0;
+  if (e.x < 2.5) return s * e.z;
+  return sign(s) * s * s * e.z;
+}
+
+// Muestra bilineal de una capa (sin máscara: hay dato en todo el globo).
+float sampleLayer(sampler2D t, vec2 ll, vec4 e) {
+  ivec2 sz = textureSize(t, 0);
+  float fx = mod(ll.x, 360.0) / 360.0 * float(sz.x);
+  float fy = clamp((90.0 - ll.y) / 180.0 * float(sz.y - 1), 0.0, float(sz.y - 1));
+  float x0f = floor(fx);
+  float y0f = floor(fy);
+  vec2 f = vec2(fx - x0f, fy - y0f);
+  int x0 = int(x0f) % sz.x;
+  int x1 = (x0 + 1) % sz.x;
+  int y0 = int(y0f);
+  int y1 = min(y0 + 1, sz.y - 1);
+  vec4 g = vec4(
+    texelFetch(t, ivec2(x0, y0), 0).r,
+    texelFetch(t, ivec2(x1, y0), 0).r,
+    texelFetch(t, ivec2(x0, y1), 0).r,
+    texelFetch(t, ivec2(x1, y1), 0).r
+  ) * 255.0;
+  vec4 v = decodeLayer(g, e);
+  vec4 w = vec4((1.0 - f.x) * (1.0 - f.y), f.x * (1.0 - f.y), (1.0 - f.x) * f.y, f.x * f.y);
+  return dot(w, v);
+}
+
+float layerAt(sampler2D t0, sampler2D t1, vec2 ll, vec4 e) {
+  return mix(sampleLayer(t0, ll, e), sampleLayer(t1, ll, e), uFrac);
+}
+
+// Color RGBA de la capa (la transparencia viene en la paleta).
+vec4 layerColor(float v, vec4 e, float row) {
+  float n = uLayerSigned > 0.5 ? v / e.w * 0.5 + 0.5 : v / e.w;
+  n = clamp(n, 0.0, 1.0);
+  return texture2D(uLayerPal, vec2(n * (255.0 / 256.0) + 0.5 / 256.0, (row + 0.5) / 4.0));
+}
+
+vec3 applyLayers(vec3 col, vec2 ll) {
+  float rowOff = uLayerSigned > 0.5 ? 1.0 : 0.0;
+  if (uLayerOn.y > 0.5) {
+    float v = layerAt(tV0, tV1, ll, uVEnc);
+#ifdef DIFF
+    v = layerAt(tVB0, tVB1, ll, uVEnc) - v;
+#endif
+    vec4 c = layerColor(v, uVEnc, 0.0 + rowOff);
+    col = mix(col, c.rgb, c.a * uLayerAlpha);
+  }
+  if (uLayerOn.x > 0.5) {
+    float v = layerAt(tP0, tP1, ll, uPEnc);
+#ifdef DIFF
+    v = layerAt(tPB0, tPB1, ll, uPEnc) - v;
+#endif
+    vec4 c = layerColor(v, uPEnc, 2.0 + rowOff);
+    col = mix(col, c.rgb, c.a * uLayerAlpha);
+  }
+  return col;
+}
+
 float aline(float d, float w) {
   return 1.0 - smoothstep(w, w + 1.0, d);
 }
@@ -671,13 +879,15 @@ void main() {
     col = uLand * 0.6;
   } else {
     vec2 F = fieldAt(tA0, tA1, ll);
-    if (uDiff > 0.5) {
-      vec2 G = fieldAt(tB0, tB1, ll);
-      F = vec2(G.x - F.x, min(F.y, G.y));
-    }
+#ifdef DIFF
+    vec2 G = fieldAt(tB0, tB1, ll);
+    F = vec2(G.x - F.x, min(F.y, G.y));
+#endif
 
     float n = clamp((F.x - uRange.x) / (uRange.y - uRange.x), 0.0, 1.0);
-    vec3 ocean = texture2D(uPalette, vec2(n * (255.0 / 256.0) + 0.5 / 256.0, 0.5)).rgb;
+    vec3 ocean = uSstOn > 0.5
+      ? texture2D(uPalette, vec2(n * (255.0 / 256.0) + 0.5 / 256.0, 0.5)).rgb
+      : uOceanBase;
 
     if (uIso > 0.0) {
       float x = (F.x - uIsoMajor) / uIso;
@@ -691,6 +901,7 @@ void main() {
 
     float oceanMask = smoothstep(0.3, 0.7, F.y);
     col = mix(uLand, ocean, oceanMask);
+    col = applyLayers(col, ll);
     float coast = aline(abs(F.y - 0.5) / max(fwidth(F.y), 1e-4), 0.35);
     col = mix(col, uCoast, coast * 0.75);
   }
@@ -716,6 +927,7 @@ void main() {
   }
 
   // Estelas de viento (premultiplicadas)
+#ifndef DIFF
   if (uTrailOn > 0.5) {
     vec2 tuv = vec2((ll.x - uTrailWin.x) / uTrailWin.z, (ll.y - uTrailWin.y) / uTrailWin.w);
 #ifdef GLOBE
@@ -724,6 +936,7 @@ void main() {
     vec4 tr = texture2D(uTrail, tuv);
     col = tr.rgb + col * (1.0 - tr.a);
   }
+#endif
 
   // Marcador del cursor (sincronizado entre mapas)
   if (uHover.z > 0.5) {
@@ -1089,7 +1302,20 @@ class MapView {
       tB0: { value: EMPTY_RED },
       tB1: { value: EMPTY_RED },
       uFrac: { value: 0 },
-      uDiff: { value: kind === 'D' ? 1 : 0 },
+      tP0: { value: EMPTY_RED },
+      tP1: { value: EMPTY_RED },
+      tV0: { value: EMPTY_RED },
+      tV1: { value: EMPTY_RED },
+      tPB0: { value: EMPTY_RED },
+      tPB1: { value: EMPTY_RED },
+      tVB0: { value: EMPTY_RED },
+      tVB1: { value: EMPTY_RED },
+      uLayerOn: { value: new THREE.Vector2(0, 0) },
+      uPEnc: { value: new THREE.Vector4(1, 0, 40, 20) },
+      uVEnc: { value: new THREE.Vector4(0, 0, 75, 65) },
+      uLayerSigned: { value: kind === 'D' ? 1 : 0 },
+      uLayerAlpha: { value: 1 },
+      uLayerPal: { value: layerPaletteTexture() },
       uDecode: { value: new THREE.Vector2(-5, 10) },
       uRange: { value: new THREE.Vector2(-4, 4) },
       uPalette: { value: EMPTY_RGBA },
@@ -1097,6 +1323,8 @@ class MapView {
       uIsoMajor: { value: 0 },
       uLand: { value: new THREE.Vector3() },
       uCoast: { value: new THREE.Vector3() },
+      uSstOn: { value: 1 },
+      uOceanBase: { value: new THREE.Vector3() },
       uRegions: { value: 1 },
       uGrid: { value: 30 },
       uWin: { value: new THREE.Vector4(0, -90, 360, 180) },
@@ -1114,6 +1342,7 @@ class MapView {
       uniforms: this.uniforms,
       vertexShader: VS_2D,
       fragmentShader: FS_FIELD,
+      defines: kind === 'D' ? { DIFF: '' } : {},
       depthTest: false,
       depthWrite: false
     });
@@ -1127,7 +1356,7 @@ class MapView {
       uniforms: this.uniforms,
       vertexShader: VS_GLOBE,
       fragmentShader: FS_FIELD,
-      defines: { GLOBE: '' }
+      defines: kind === 'D' ? { GLOBE: '', DIFF: '' } : { GLOBE: '' }
     });
     this.globe = new THREE.Mesh(SPHERE_GEO, matG);
     const atmo = new THREE.Mesh(ATMO_GEO, new THREE.ShaderMaterial({
@@ -1388,11 +1617,33 @@ function applyStyleUniforms() {
     u.uDecode.value.set(decode[0], decode[1] - decode[0]);
     u.uPalette.value = isDiff ? diffPal : mainPal;
     u.uRange.value.set(isDiff ? CONFIG.diff.min : disp.min, isDiff ? CONFIG.diff.max : disp.max);
-    u.uIso.value = state.iso ? (isDiff ? CONFIG.diff.iso : disp.iso) : 0;
+    u.uIso.value = state.iso && state.sst ? (isDiff ? CONFIG.diff.iso : disp.iso) : 0;
     u.uIsoMajor.value = isDiff ? CONFIG.diff.isoMajor : disp.isoMajor;
     u.uLand.value.copy(hexToVec3(pal.land));
     u.uCoast.value.copy(hexToVec3(pal.coast));
+    u.uSstOn.value = state.sst ? 1 : 0;
+    u.uOceanBase.value.copy(hexToVec3(pal.oceanBase));
     u.uRegions.value = state.regions ? 1 : 0;
+
+    // Capas: codificación del PNG y escala de la paleta.
+    const signed = isDiff || state.variable === 'anomaly';
+    u.uLayerSigned.value = signed ? 1 : 0;
+    u.uLayerAlpha.value = state.layerAlpha;
+    for (const [name, key] of [['precip', 'uPEnc'], ['vapor', 'uVEnc']]) {
+      const meta = state.layerMeta[name];
+      const cfg = CONFIG.layers[name];
+      if (!meta) continue;
+      const enc = meta[state.variable === 'anomaly' ? 'anomaly' : 'total'].encoding;
+      u[key].value.set(
+        ENCODING_TYPES[enc.type] ?? 0,
+        enc.min ?? 0,
+        enc.max,
+        signed ? cfg.signedMax : cfg.totalMax
+      );
+    }
+    if (!layerActive('precip')) u.uLayerOn.value.x = 0;
+    if (!layerActive('vapor')) u.uLayerOn.value.y = 0;
+
     v.controls.enabled = state.view === 'globe';
     v.el.style.cursor = state.view === 'globe' ? 'grab' : '';
   }
@@ -1453,9 +1704,75 @@ function updateTextures() {
   setHasData(B, okB);
   setHasData(D, okA && okB);
 
+  updateLayerTextures(i0, i1, frac);
+
   if (!firstFrameShown && okA && okB) {
     firstFrameShown = true;
     ui.loader.classList.add('is-hidden');
+  }
+}
+
+// Texturas de precipitación / vapor para el instante actual.
+function layerFrame(name, period, i, urgent) {
+  const { year, month } = mesDePeriodo(period, i);
+  return FrameStore.get(layerVariable(name), year, month, urgent);
+}
+
+function updateLayerTextures(i0, i1) {
+  const { A, B, D } = views;
+  const layers = [['precip', 'tP', 'tPB', 'x'], ['vapor', 'tV', 'tVB', 'y']];
+
+  for (const [name, pre, preB, axis] of layers) {
+    if (!layerActive(name)) continue;
+
+    const a0 = layerFrame(name, state.periodA, i0, true);
+    const a1 = layerFrame(name, state.periodA, i1, true);
+    const b0 = layerFrame(name, state.periodB, i0, true);
+    const b1 = layerFrame(name, state.periodB, i1, true);
+
+    // Si el mes siguiente no está listo se repite el actual
+    // (uFrac es compartido con la SST).
+    const tex = (e0, e1) => [e0.texture, e1.status === 'ready' ? e1.texture : e0.texture];
+
+    const assign = (view, prefix, e0, e1) => {
+      const u = view.uniforms;
+      if (e0.status === 'ready') {
+        const [t0, t1] = tex(e0, e1);
+        if (u[prefix + '0'].value !== t0 || u[prefix + '1'].value !== t1) {
+          u[prefix + '0'].value = t0;
+          u[prefix + '1'].value = t1;
+          view.dirty = true;
+        }
+        return true;
+      }
+      return e0.status === 'error' ? false : null; // null: aún cargando
+    };
+
+    const setOn = (view, ok) => {
+      if (ok === null) return;
+      const on = ok ? 1 : 0;
+      if (view.uniforms.uLayerOn.value[axis] !== on) {
+        view.uniforms.uLayerOn.value[axis] = on;
+        view.dirty = true;
+      }
+    };
+
+    setOn(A, assign(A, pre, a0, a1));
+    setOn(B, assign(B, pre, b0, b1));
+
+    const okDA = assign(D, pre, a0, a1);
+    const okDB = assign(D, preB, b0, b1);
+    setOn(D, okDA === null || okDB === null ? null : okDA && okDB);
+  }
+}
+
+function prefetchLayers() {
+  for (const name of ['precip', 'vapor']) {
+    if (!layerActive(name)) continue;
+    for (let i = 0; i < state.total; i++) {
+      layerFrame(name, state.periodA, i, false);
+      layerFrame(name, state.periodB, i, false);
+    }
   }
 }
 
@@ -1480,6 +1797,7 @@ function prefetchPeriods() {
     frameFor(state.periodB, i, false);
   }
   if (state.wind) prefetchWind();
+  prefetchLayers();
 }
 
 function prefetchWind() {
@@ -1492,7 +1810,10 @@ function prefetchWind() {
 }
 
 FrameStore.setProtect((e) => {
-  if (e.variable !== state.variable) return false;
+  const enUso = e.variable === state.variable ||
+    (layerActive('precip') && e.variable === layerVariable('precip')) ||
+    (layerActive('vapor') && e.variable === layerVariable('vapor'));
+  if (!enUso) return false;
   return [state.periodA, state.periodB].some((p) => e.year === p.inicio || e.year === p.fin);
 });
 
@@ -1529,7 +1850,10 @@ function setVariable(v) {
   if (state.variable === v) return;
   state.variable = v;
   setSeg('segVariable', v);
-  allViews().forEach((view) => { view.uniforms.uHasData.value = 0; });
+  allViews().forEach((view) => {
+    view.uniforms.uHasData.value = 0;
+    view.uniforms.uLayerOn.value.set(0, 0); // se reactivan al cargar el nuevo modo
+  });
   applyStyleUniforms();
   onPeriodsChanged();
 }
@@ -1674,6 +1998,18 @@ function buildTimeline() {
 
 function decodeValue(g, variable) {
   if (g === 0) return NaN;
+
+  // Capas (precip/total, vapor/anomaly, ...)
+  if (variable.includes('/')) {
+    const [name, mode] = variable.split('/');
+    const enc = state.layerMeta[name]?.[mode]?.encoding;
+    if (!enc) return NaN;
+    if (enc.type === 'linear') return enc.min + ((g - 1) / 254) * (enc.max - enc.min);
+    if (enc.type === 'sqrt') { const s = (g - 1) / 254; return enc.max * s * s; }
+    const s = (g - 128) / 127;
+    return enc.type === 'signed-linear' ? s * enc.max : Math.sign(s) * s * s * enc.max;
+  }
+
   const [min, max] = variable === 'anomaly'
     ? [state.meta.anomaly_min ?? -5, state.meta.anomaly_max ?? 5]
     : [state.meta.sst_min ?? 0, state.meta.sst_max ?? 45];
@@ -1952,6 +2288,16 @@ function valueAt(period, lon, lat) {
   return a + (b - a) * frac;
 }
 
+function layerValueAt(name, period, lon, lat) {
+  if (!layerActive(name)) return NaN;
+  const { i0, i1, frac } = tiempo();
+  const a = sampleFrame(layerFrame(name, period, i0, false), lon, lat);
+  const b = sampleFrame(layerFrame(name, period, i1, false), lon, lat);
+  if (!Number.isFinite(a)) return b;
+  if (!Number.isFinite(b)) return a;
+  return a + (b - a) * frac;
+}
+
 function windAt(period, lon, lat) {
   if (!state.wind) return null;
   const s = windSampler(period);
@@ -1988,6 +2334,27 @@ function renderTooltip() {
 
   const valTxt = (v) => (Number.isFinite(v) ? `${fmt(v, 2, disp.signed)} °C` : 'Tierra / sin dato');
 
+  // Precipitación y vapor (solo si la capa está activa).
+  const anom = state.variable === 'anomaly';
+  const capas = ['precip', 'vapor'].filter(layerActive).map((name) => {
+    const cfg = CONFIG.layers[name];
+    return {
+      name,
+      label: anom ? `${cfg.label} (anom.)` : cfg.label,
+      short: name === 'precip' ? 'Precip.' : 'Vapor',
+      unit: cfg.unit,
+      a: layerValueAt(name, state.periodA, h.lon, h.lat),
+      b: layerValueAt(name, state.periodB, h.lon, h.lat)
+    };
+  });
+  const capaSub = (c, v) =>
+    `<div class="tt-sub">${c.short} ${fmt(v, 1, anom)} ${c.unit}</div>`;
+  const capaDiff = (c) => {
+    const dd = c.b - c.a;
+    const cls = dd > 0 ? 'wet' : dd < 0 ? 'dry' : '';
+    return `<div class="tt-diff"><span>${c.label} B − A</span><b class="${cls}">${fmt(dd, 1)} ${c.unit}</b></div>`;
+  };
+
   tip.innerHTML = `
     <div class="tt-coords"><span>Lat <b>${latTxt}</b></span><span>Lon <b>${lonTxt}</b></span></div>
     <div class="tt-grid">
@@ -1995,15 +2362,18 @@ function renderTooltip() {
         <div class="tt-head">A · ${etiquetaMes(state.periodA, i)}</div>
         <div class="tt-val">${valTxt(vA)}</div>
         ${windHtml(wA)}
+        ${capas.map((c) => capaSub(c, c.a)).join('')}
       </div>
       <div class="tt-col b">
         <div class="tt-head">B · ${etiquetaMes(state.periodB, i)}</div>
         <div class="tt-val">${valTxt(vB)}</div>
         ${windHtml(wB)}
+        ${capas.map((c) => capaSub(c, c.b)).join('')}
       </div>
     </div>
     <div class="tt-diff"><span>${disp.label} B − A</span><b class="${d > 0 ? 'pos' : d < 0 ? 'neg' : ''}">${Number.isFinite(d) ? fmt(d, 2) + ' °C' : '—'}</b></div>
     ${wA && wB ? `<div class="tt-diff"><span>Viento ${level} B − A</span><b>${fmt(wB.s - wA.s, 1)} m/s</b></div>` : ''}
+    ${capas.map(capaDiff).join('')}
   `;
   tip.hidden = false;
 
@@ -2039,20 +2409,82 @@ function legendHtml(stops, min, max, name, signed) {
     </div>`;
 }
 
+// Tramo de la paleta donde la capa es (casi) transparente, en 0..1.
+function transparentSpan(stops) {
+  let a = null;
+  let b = null;
+  for (let i = 0; i <= 200; i++) {
+    const n = i / 200;
+    if (rgbaAt(stops, n)[3] < 0.06) {
+      if (a === null) a = n;
+      b = n;
+    }
+  }
+  return a === null ? null : [a, b];
+}
+
+// Leyenda compacta de una capa (precipitación / vapor).
+// El fondo a cuadros deja ver qué parte de la escala es transparente,
+// y una marca indica el tramo transparente (≈ 0 en anomalías).
+function layerLegendHtml(name, signed, prefix = '') {
+  const cfg = CONFIG.layers[name];
+  const stops = signed ? cfg.signed : cfg.total;
+  const max = signed ? cfg.signedMax : cfg.totalMax;
+  const ticks = signed
+    ? [[0, `−${max}`], [50, '0'], [100, `+${max}`]]
+    : [[0, '0'], [50, `${max / 2}`], [100, `${max}`]];
+  const nombre = signed && !prefix ? `Anom. ${cfg.label.toLowerCase()}` : `${prefix}${cfg.label}`;
+
+  let transp = '';
+  const span = transparentSpan(stops);
+  if (span) {
+    const lo = signed ? (span[0] * 2 - 1) * max : span[0] * max;
+    const hi = signed ? (span[1] * 2 - 1) * max : span[1] * max;
+    const rango = signed
+      ? `entre ${fmt(lo, 1)} y ${fmt(hi, 1)}`
+      : `menor que ${Number(hi.toFixed(1))}`;
+    const texto = signed ? '≈ 0 transparente' : 'transparente';
+    transp = `
+      <span class="legend-transp" style="left:${span[0] * 100}%; width:${(span[1] - span[0]) * 100}%"
+            title="Valores ${rango} ${cfg.unit}: no se colorean (se ve la capa de abajo)">
+        <em>${texto}</em>
+      </span>`;
+  }
+
+  return `
+    <div class="legend-scale legend-layer">
+      <span class="legend-name">${nombre} (${cfg.unit})</span>
+      <div class="legend-bar-wrap">
+        <div class="legend-bar" style="background:${cssGradientRGBA(stops)}, var(--legend-under)"></div>
+        ${transp}
+        <div class="legend-ticks">${ticks.map(([p, t]) => `<span style="left:${p}%">${t}</span>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
 function renderLegends() {
   const pal = CONFIG.palettes[state.paleta];
   const disp = CONFIG.display[state.variable];
   const lvl = CONFIG.windLevels[state.windLevel];
+  const anom = state.variable === 'anomaly';
   const windLegend = state.wind
     ? `<div class="legend-wind">Viento ${lvl.label}
          <div class="legend-bar" style="background:${pal.windBar}"></div>
          0–${lvl.speedMax} m/s</div>`
     : '';
+  const capas = ['precip', 'vapor'].filter(layerActive);
+  const capasMain = capas.map((n) => layerLegendHtml(n, anom)).join('');
+  const capasDiff = capas.map((n) => layerLegendHtml(n, true, 'B − A ')).join('');
+
+  const sinSst = '<div class="legend-off">SST oculta</div>';
+  const sstMain = state.sst ? legendHtml(pal[state.variable], disp.min, disp.max, disp.label, disp.signed) : sinSst;
+  const sstDiff = state.sst ? legendHtml(pal.anomaly, CONFIG.diff.min, CONFIG.diff.max, 'B − A', true) : sinSst;
+
   document.querySelectorAll('[data-legend="main"]').forEach((el) => {
-    el.innerHTML = legendHtml(pal[state.variable], disp.min, disp.max, disp.label, disp.signed) + windLegend;
+    el.innerHTML = sstMain + windLegend + capasMain;
   });
   document.querySelectorAll('[data-legend="diff"]').forEach((el) => {
-    el.innerHTML = legendHtml(pal.anomaly, CONFIG.diff.min, CONFIG.diff.max, 'B − A', true);
+    el.innerHTML = sstDiff + capasDiff;
   });
 }
 
@@ -2149,8 +2581,20 @@ function bindUI() {
       state[k] = !state[k];
       b.classList.toggle('is-on', state[k]);
       if (k === 'tooltip') renderTooltip();
+      if (k === 'precip' || k === 'vapor' || k === 'sst') {
+        prefetchLayers();
+        updateLayerOpacityUI();
+        saveHash();
+        if (state.hover) renderTooltip();
+      }
       applyStyleUniforms();
     });
+  });
+
+  $('layerAlpha').addEventListener('input', (e) => {
+    state.layerAlpha = Number(e.target.value) / 100;
+    allViews().forEach((v) => { v.uniforms.uLayerAlpha.value = state.layerAlpha; });
+    markDirty();
   });
 
   ui.btnPlay.addEventListener('click', () => setPlaying(!state.playing));
@@ -2205,7 +2649,23 @@ function saveHash() {
     viento: state.wind ? state.windLevel : 'no',
     paleta: state.paleta
   });
+  const capas = ['precip', 'vapor'].filter((n) => state[n]);
+  if (capas.length) p.set('capas', capas.join(','));
+  if (!state.sst) p.set('sst', '0');
   history.replaceState(null, '', `#${p}`);
+}
+
+// Muestra el control de opacidad solo si hay alguna capa activa.
+function updateLayerOpacityUI() {
+  const any = layerActive('precip') || layerActive('vapor');
+  $('layerAlphaField').hidden = !any;
+  document.querySelector('[data-toggle="sst"]')?.classList.toggle('is-on', state.sst);
+  document.querySelectorAll('[data-toggle="precip"], [data-toggle="vapor"]').forEach((b) => {
+    const name = b.dataset.toggle;
+    b.classList.toggle('is-on', !!state[name]);
+    b.disabled = !layerAvailable(name);
+    b.title = layerAvailable(name) ? '' : 'Datos no disponibles (falta data/' + name + '/metadata.json)';
+  });
 }
 
 function loadHash() {
@@ -2219,6 +2679,22 @@ function loadHash() {
   const w = p.get('viento');
   if (w === 'no') state.wind = false;
   else if (w in CONFIG.windLevels) state.windLevel = w;
+  const capas = (p.get('capas') || '').split(',');
+  state.precip = capas.includes('precip');
+  state.vapor = capas.includes('vapor');
+  state.sst = p.get('sst') !== '0';
+}
+
+// Carga los metadata.json de las capas (si existen).
+async function loadLayerMeta() {
+  await Promise.all(['precip', 'vapor'].map(async (name) => {
+    try {
+      const r = await fetch(`data/${name}/metadata.json`);
+      if (r.ok) state.layerMeta[name] = await r.json();
+    } catch {
+      // Sin datos: la capa queda desactivada.
+    }
+  }));
 }
 
 // =============================================================
@@ -2266,6 +2742,7 @@ async function iniciar() {
     const res = await fetch(CONFIG.metadataPath);
     if (!res.ok) throw new Error(`metadata.json: HTTP ${res.status}`);
     state.meta = await res.json();
+    await loadLayerMeta();
 
     views = {
       A: new MapView($('viewA'), 'A'),
@@ -2286,6 +2763,7 @@ async function iniciar() {
     ui.nivelViento.disabled = !state.wind;
 
     buildPresets();
+    updateLayerOpacityUI();
     bindUI();
     bindChart();
     applyStyleUniforms();

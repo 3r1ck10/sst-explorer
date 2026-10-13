@@ -317,6 +317,90 @@ select option { background: var(--surface-solid); }
   background: var(--accent);
 }
 
+/* Capas superpuestas: precipitación y vapor */
+.chip { display: inline-flex; align-items: center; gap: 6px; }
+
+.chip:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.chip-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.swatch-precip { background: linear-gradient(135deg, #78c8ff, #2850e6 60%, #d246e6); }
+.swatch-vapor { background: linear-gradient(135deg, #5a5f69, #ffffff); }
+
+.chip-precip.is-on { border-color: rgba(70, 140, 255, 0.6); background: rgba(70, 140, 255, 0.14); }
+.chip-vapor.is-on { border-color: rgba(230, 235, 245, 0.55); background: rgba(230, 235, 245, 0.1); }
+
+#layerAlphaField[hidden] { display: none; }
+
+#layerAlpha {
+  width: 110px;
+  height: 30px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.swatch-sst { background: linear-gradient(135deg, #2f8bd3, #151b27 50%, #d24a2a); }
+.chip-sst.is-on { border-color: rgba(240, 140, 90, 0.55); background: rgba(240, 140, 90, 0.12); }
+
+/* Las leyendas de capas se dibujan sobre un fondo a cuadros:
+   donde la capa es transparente se ven los cuadros. */
+:root {
+  --legend-under: repeating-conic-gradient(#2c3648 0% 25%, #131a26 0% 50%) 0 0 / 8px 8px;
+}
+
+.legend-layer .legend-name { font-weight: 500; color: var(--muted); }
+
+.legend-layer .legend-bar-wrap { padding-top: 13px; }
+.legend-layer .legend-ticks { top: 24px; }
+
+/* Marca del tramo transparente (≈ 0 en anomalías). */
+.legend-transp {
+  position: absolute;
+  top: 9px;
+  height: 16px;
+  min-width: 6px;
+  border: 1px dashed rgba(233, 240, 251, 0.7);
+  border-radius: 3px;
+  pointer-events: auto;
+  cursor: help;
+}
+
+.legend-transp em {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 1px;
+  color: var(--text);
+  font-size: 0.62rem;
+  font-style: normal;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+/* Transparencia en valores bajos: alinear el texto al inicio. */
+.legend-transp[style^="left:0%"] em {
+  left: 0;
+  transform: none;
+}
+
+.legend-off {
+  padding: 3px 9px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.tt-diff b.wet { color: #7cc4ff; }
+.tt-diff b.dry { color: #e0b070; }
+
 /* Interruptor */
 .wind-row {
   display: flex;
