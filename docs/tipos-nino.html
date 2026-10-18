@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tipos de El Niño · SST Explorer</title>
+  <meta name="description" content="Esquemas didácticos sobre los tipos de El Niño, su evolución estacional y su impacto en la costa del Perú, calculados con los datos de SST Explorer (1980–2026).">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tipos-nino.css">
+</head>
+
+<body>
+  <div class="app esq">
+
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 40 40" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#5ad1ff"/>
+              <stop offset="1" stop-color="#ff8a4c"/>
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="url(#lg)" stroke-width="2.5"/>
+          <path d="M5 22c4-4 7-4 10 0s7 4 10 0 7-4 10 0" fill="none" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h1>Tipos de El Niño</h1>
+          <p>Esquemas didácticos con los datos de SST Explorer · 1980–2026</p>
+        </div>
+      </div>
+      <nav class="top-controls">
+        <a class="simple-link" href="index.html">← Volver al visualizador</a>
+      </nav>
+    </header>
+
+    <nav class="esq-indice" aria-label="Secciones">
+      <a href="#actual">El Niño 2026</a>
+      <a href="#tipos">1 · Tipos</a>
+      <a href="#clasificacion">2 · Clasificación</a>
+      <a href="#estacion">3 · Depende del mes</a>
+      <a href="#huellas">4 · Huella de cada tipo</a>
+      <a href="#evolucion">5 · Evolución</a>
+      <a href="#metodo">Método</a>
+    </nav>
+
+    <main class="esq-main">
+
+      <!-- ===================================================
+           CONTEXTO ACTUAL
+           =================================================== -->
+      <section id="actual" class="esq-sec">
+        <div class="actual-card">
+          <div class="actual-texto">
+            <span class="kicker">En contexto</span>
+            <h2 id="actualTitulo">El Niño 2026</h2>
+            <p id="actualResumen" class="lead">Cargando datos…</p>
+            <p class="nota">Valores calculados con los datos de esta página (anomalías respecto a 1980–2010).
+              Describen lo observado hasta el último mes disponible; <strong>no son un pronóstico</strong>
+              ni reemplazan los comunicados oficiales del ENFEN.</p>
+          </div>
+          <div class="actual-kpis" id="actualKpis"></div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           1 · TIPOS
+           =================================================== -->
+      <section id="tipos" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">1</span>
+          <div>
+            <h2>Dónde se calienta el océano: los tipos de El Niño</h2>
+            <p>Corte esquemático del Pacífico ecuatorial (de Indonesia a Sudamérica). El tipo de El Niño
+              depende de <em>dónde</em> se concentra el calentamiento, y eso decide hacia dónde se desplaza la
+              convección (las lluvias) y cómo cambian los vientos alisios.</p>
+          </div>
+        </header>
+        <div class="tipos-grid" id="tiposGrid"></div>
+        <div class="regiones">
+          <div class="regiones-mapa">
+            <canvas id="mapaRegiones" width="684" height="244" aria-label="Mapa de las regiones Niño"></canvas>
+          </div>
+          <div class="regiones-texto">
+            <h3>Índices usados</h3>
+            <ul>
+              <li><b class="r12">Niño 1+2</b> (0–10°S, 90–80°W): frente a Perú y Ecuador. Su media móvil de 3 meses es
+                la base del <abbr title="Índice Costero El Niño">ICEN</abbr> del ENFEN.</li>
+              <li><b class="r34">Niño 3.4</b> (5°N–5°S, 170–120°W): Pacífico central-este; base del ONI de NOAA.</li>
+              <li><b class="r3">Niño 3</b> y <b class="r4">Niño 4</b>: Pacífico oriental y occidental.</li>
+              <li><b>E y C</b> (Takahashi et al., 2011): separan el calentamiento del Pacífico <b>E</b>ste del
+                <b>C</b>entral con un análisis de componentes principales. Los usa el ENFEN.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           2 · CLASIFICACIÓN
+           =================================================== -->
+      <section id="clasificacion" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">2</span>
+          <div>
+            <h2>Cómo se agrupan los eventos 1980–2026</h2>
+            <p>Cada punto es un evento detectado en los datos. A la derecha, los que calientan más el Pacífico
+              central; arriba, los que calientan más la costa. El recorrido de 2026 se muestra mes a mes.</p>
+          </div>
+        </header>
+        <div class="clasif">
+          <div class="panel clasif-chart">
+            <div class="panel-head">
+              <div class="panel-title"><h2 id="dispTitulo">Niño 3.4 vs Niño 1+2 (máximos, media 3 meses)</h2></div>
+              <div class="seg" id="segDisp" role="radiogroup" aria-label="Ejes">
+                <button type="button" data-value="nino" class="is-on">Niño 3.4 / 1+2</button>
+                <button type="button" data-value="ec">Índices E / C</button>
+              </div>
+            </div>
+            <svg id="dispersion" role="img" aria-label="Diagrama de clasificación de eventos"></svg>
+          </div>
+          <div class="panel clasif-grupos" id="gruposLeyenda"></div>
+        </div>
+
+        <div class="panel linea-tiempo">
+          <div class="panel-head">
+            <div class="panel-title">
+              <h2>Línea de tiempo de los índices (media móvil de 3 meses)</h2>
+              <span class="panel-date">Bandas de color: eventos detectados y su tipo</span>
+            </div>
+            <div class="chart-legend">
+              <span><i class="line" style="background:#ff8a4c"></i><b>Niño 1+2</b></span>
+              <span><i class="line" style="background:#5ad1ff"></i><b>Niño 3.4</b></span>
+            </div>
+          </div>
+          <svg id="lineaTiempo" role="img" aria-label="Serie temporal de los índices Niño 1+2 y Niño 3.4"></svg>
+        </div>
+
+        <div class="panel tabla-wrap">
+          <table class="tabla" id="tablaEventos">
+            <thead>
+              <tr>
+                <th>Evento</th><th>Tipo</th><th>Periodo</th><th>Máx. Niño 1+2</th><th>Máx. Niño 3.4</th>
+                <th>Inicio en la costa</th><th>Máx. lluvia costa norte</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           3 · DEPENDE DEL MES
+           =================================================== -->
+      <section id="estacion" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">3</span>
+          <div>
+            <h2>El mismo calentamiento, distinto impacto: depende del mes</h2>
+            <p>Para que llueva en la costa norte del Perú, el mar frente a la costa debe superar un umbral de
+              temperatura (en estos datos, entre 26 y 27 °C). Eso solo es posible cuando la anomalía se suma al
+              máximo estacional de <b>enero a abril</b>. En invierno, incluso una anomalía muy grande deja el
+              mar por debajo del umbral.</p>
+          </div>
+        </header>
+
+        <div class="estacion-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2>Ciclo anual de la SST en Niño 1+2</h2>
+                <span class="panel-date">Climatología 1980–2010 + anomalías</span>
+              </div>
+            </div>
+            <svg id="cicloAnual" role="img" aria-label="Ciclo anual de la SST en Niño 1+2 con umbral de convección"></svg>
+            <p class="nota" id="cicloNota"></p>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2>SST de Niño 1+2 vs lluvia en la costa norte</h2>
+                <span class="panel-date">Cada punto es un mes (1980–2026); color = mes del año</span>
+              </div>
+            </div>
+            <svg id="umbral" role="img" aria-label="Relación entre SST de Niño 1+2 y lluvia en la costa norte"></svg>
+            <div class="meses-leyenda" id="mesesLeyenda"></div>
+          </div>
+
+          <div class="panel estacion-barras">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2>Lluvia extra en la costa norte cuando Niño 1+2 ≥ +2 °C</h2>
+                <span class="panel-date">Anomalía media de precipitación según el mes (mm/día)</span>
+              </div>
+            </div>
+            <svg id="barrasMes" role="img" aria-label="Anomalía de lluvia por mes cuando Niño 1+2 supera +2 °C"></svg>
+            <p class="nota">Costa norte: 4–6°S, 81–80°W (Tumbes–Piura). ERA5 tiende a sobreestimar la lluvia
+              climatológica en la costa desértica; las anomalías y el contraste entre meses son lo relevante.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           4 · HUELLAS
+           =================================================== -->
+      <section id="huellas" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">4</span>
+          <div>
+            <h2>La huella de cada tipo en tres momentos del evento</h2>
+            <p>Mapas compuestos (promedio de los eventos de cada grupo) de anomalías respecto a 1980–2010.
+              <b>Año 0</b> es el año en que empieza el calentamiento. La última fila muestra el evento en curso.</p>
+          </div>
+        </header>
+
+        <div class="huellas-controles">
+          <div class="seg" id="segCampo" role="radiogroup" aria-label="Variable del mapa">
+            <button type="button" data-value="sst" class="is-on">SST</button>
+            <button type="button" data-value="precip">Precipitación</button>
+            <button type="button" data-value="vapor">Vapor de agua</button>
+          </div>
+          <label class="huellas-viento">
+            <span class="switch"><input type="checkbox" id="chkViento" checked><span class="switch-track"></span></span>
+            Anomalía de viento a 10 m
+          </label>
+          <div class="huellas-leyenda" id="huellasLeyenda"></div>
+        </div>
+
+        <div class="huellas" id="huellasGrid"></div>
+      </section>
+
+      <!-- ===================================================
+           5 · EVOLUCIÓN
+           =================================================== -->
+      <section id="evolucion" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">5</span>
+          <div>
+            <h2>Cómo evoluciona cada tipo (y dónde va 2026)</h2>
+            <p>Cada gráfico sigue los índices durante dos años: desde enero del <b>año 0</b> (el año en que
+              empieza el calentamiento) hasta diciembre del <b>año +1</b>. Las líneas gruesas son el
+              <b>promedio del grupo</b>; las finas, con su nombre, son <b>cada evento</b> del grupo; la línea
+              blanca punteada es <b>2026</b>, para comparar. Pasa el ratón para ver los valores de cada mes.</p>
+          </div>
+        </header>
+
+        <div class="evol-controles">
+          <span class="field-label">Líneas finas (cada evento)</span>
+          <div class="seg" id="segEvol" role="radiogroup" aria-label="Índice de los eventos individuales">
+            <button type="button" data-value="nino12_3m" class="is-on">Niño 1+2 (costa)</button>
+            <button type="button" data-value="nino34_3m">Niño 3.4 (centro)</button>
+            <button type="button" data-value="">Ocultar</button>
+          </div>
+          <div class="evol-leyenda">
+            <span><i class="ln gruesa" style="background:#ff8a4c"></i>Promedio del grupo · Niño 1+2</span>
+            <span><i class="ln gruesa" style="background:#5ad1ff"></i>Promedio del grupo · Niño 3.4</span>
+            <span><i class="ln fina"></i>Cada evento del grupo</span>
+            <span><i class="ln punteada"></i>2026 (mismo índice que las líneas finas)</span>
+            <span><i class="ln banda"></i>Temporada de lluvias en la costa (ene–abr)</span>
+          </div>
+        </div>
+
+        <div class="evolucion-grid" id="evolucion-grid"></div>
+      </section>
+
+      <!-- ===================================================
+           MÉTODO
+           =================================================== -->
+      <section id="metodo" class="esq-sec">
+        <details class="about metodo" open>
+          <summary>Método, reglas de clasificación y limitaciones</summary>
+          <div class="metodo-cols">
+            <div>
+              <h3>Datos</h3>
+              <p>Anomalías de SST, precipitación (ERA5), vapor de agua (ERA5) y viento a 10 m de SST Explorer,
+                respecto a la climatología mensual 1980–2010. Las cajas se promedian con peso cos(latitud).</p>
+              <h3>Detección de eventos</h3>
+              <ul>
+                <li><b>Evento del Pacífico:</b> Niño 3.4 (media 3 meses) ≥ 0.5 °C durante 5 meses o más.</li>
+                <li><b>Calentamiento costero:</b> Niño 1+2 (media 3 meses) ≥ 0.4 °C durante 3 meses o más
+                  (umbral similar al de condiciones cálidas del ICEN).</li>
+                <li><b>Inicio en la costa:</b> el calentamiento costero empieza 2+ meses antes de que Niño 3.4
+                  llegue a 0.5 °C.</li>
+              </ul>
+              <h3>Tipos</h3>
+              <ul id="reglasTipos"></ul>
+            </div>
+            <div>
+              <h3>Limitaciones</h3>
+              <ul>
+                <li>Los índices oficiales (ICEN del ENFEN, ONI/RONI de NOAA) usan otros conjuntos de datos y
+                  climatologías; los valores pueden diferir de los publicados.</li>
+                <li>La clasificación es una agrupación didáctica con reglas simples; en la literatura algunos
+                  eventos (p. ej. 1991-92, 2014-16) se describen como mixtos.</li>
+                <li>Los compuestos promedian pocos eventos (2 a 5), por lo que reflejan también rasgos
+                  particulares de cada uno.</li>
+                <li>El evento 2026 está en curso: sus valores cambiarán con nuevos datos.</li>
+              </ul>
+              <h3>Referencias</h3>
+              <ul class="refs">
+                <li>Takahashi, K., Montecinos, A., Goubanova, K. y Dewitte, B. (2011). ENSO regimes: Reinterpreting the canonical and Modoki El Niño. <i>Geophysical Research Letters</i>, 38, L10704.</li>
+                <li>Ashok, K., Behera, S. K., Rao, S. A., Weng, H. y Yamagata, T. (2007). El Niño Modoki and its possible teleconnection. <i>Journal of Geophysical Research</i>, 112, C11007.</li>
+                <li>Kug, J.-S., Jin, F.-F. y An, S.-I. (2009). Two types of El Niño events: Cold tongue El Niño and warm pool El Niño. <i>Journal of Climate</i>, 22, 1499–1515.</li>
+                <li>Takahashi, K. y Martínez, A. G. (2019). The very strong coastal El Niño in 1925 in the far-eastern Pacific. <i>Climate Dynamics</i>, 52.</li>
+                <li>Garreaud, R. D. (2018). A plausible atmospheric trigger for the 2017 coastal El Niño. <i>International Journal of Climatology</i>, 38.</li>
+                <li>ENFEN (2012). Definición operacional de los eventos El Niño y La Niña y sus magnitudes en la costa del Perú. Nota técnica.</li>
+                <li>Hersbach, H. et al. (2020). The ERA5 global reanalysis. <i>Quarterly Journal of the Royal Meteorological Society</i>, 146, 1999–2049.</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <footer class="esq-footer">
+      <p>SST Explorer · Esquemas generados con <code>scripts/generar_esquemas_nino.py</code> a partir de los datos del visualizador.</p>
+    </footer>
+  </div>
+
+  <div id="tooltip" class="tooltip" hidden></div>
+
+  <script src="tipos-nino.js"></script>
+</body>
+</html>
