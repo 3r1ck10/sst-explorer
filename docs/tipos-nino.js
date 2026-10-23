@@ -1177,7 +1177,7 @@ async function iniciar() {
     D = await r.json();
   } catch (err) {
     console.error(err);
-    $('actualResumen').textContent = 'No se pudo cargar data/esquemas/nino.json. Abre la página con un servidor local y genera los datos con scripts/generar_esquemas_nino.py.';
+    $('actualResumen').textContent = 'No se pudieron cargar los datos de los esquemas. Intenta recargar la página.';
     return;
   }
 

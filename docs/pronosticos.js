@@ -1145,7 +1145,7 @@ async function iniciar() {
   } catch (err) {
     console.error(err);
     $('resTitulo').textContent = 'No se pudieron cargar los pronósticos';
-    $('resTexto').textContent = 'Genera data/pronosticos/indices.json con scripts/generar_pronosticos.py y abre la página con un servidor local.';
+    $('resTexto').textContent = 'No se pudieron cargar los datos de pronósticos. Intenta recargar la página.';
     return;
   }
 
