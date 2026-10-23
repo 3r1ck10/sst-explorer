@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tipos de El Niño · SST Explorer</title>
+  <title>Análisis El Niño · SST Explorer</title>
   <meta name="description" content="Esquemas didácticos sobre los tipos de El Niño, su evolución estacional y su impacto en la costa del Perú, calculados con los datos de SST Explorer (1980–2026).">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,11 +29,12 @@
           <path d="M5 22c4-4 7-4 10 0s7 4 10 0 7-4 10 0" fill="none" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
         <div>
-          <h1>Tipos de El Niño</h1>
+          <h1>Análisis El Niño</h1>
           <p>Esquemas didácticos con los datos de SST Explorer · 1980–2026</p>
         </div>
       </div>
       <nav class="top-controls">
+        <a class="simple-link" href="pronosticos.html">Pronósticos</a>
         <a class="simple-link" href="index.html">← Volver al visualizador</a>
       </nav>
     </header>
@@ -59,9 +60,10 @@
             <span class="kicker">En contexto</span>
             <h2 id="actualTitulo">El Niño 2026</h2>
             <p id="actualResumen" class="lead">Cargando datos…</p>
-            <p class="nota">Valores calculados con los datos de esta página (anomalías respecto a 1980–2010).
+            <p class="nota">Valores calculados con los datos de esta página (anomalías respecto a 1991–2020).
               Describen lo observado hasta el último mes disponible; <strong>no son un pronóstico</strong>
-              ni reemplazan los comunicados oficiales del ENFEN.</p>
+              ni reemplazan los comunicados oficiales del ENFEN. Para lo que indican los modelos hacia 2027, ver
+              <a href="pronosticos.html">Pronósticos</a>.</p>
           </div>
           <div class="actual-kpis" id="actualKpis"></div>
         </div>
@@ -92,6 +94,7 @@
                 la base del <abbr title="Índice Costero El Niño">ICEN</abbr> del ENFEN.</li>
               <li><b class="r34">Niño 3.4</b> (5°N–5°S, 170–120°W): Pacífico central-este; base del ONI de NOAA.</li>
               <li><b class="r3">Niño 3</b> y <b class="r4">Niño 4</b>: Pacífico oriental y occidental.</li>
+              <li><b>Costa norte</b> (4–6°S, 81–80°W, caja punteada blanca): costa de Piura; ahí se mide la lluvia de esta página.</li>
               <li><b>E y C</b> (Takahashi et al., 2011): separan el calentamiento del Pacífico <b>E</b>ste del
                 <b>C</b>entral con un análisis de componentes principales. Los usa el ENFEN.</li>
             </ul>
@@ -144,7 +147,7 @@
             <thead>
               <tr>
                 <th>Evento</th><th>Tipo</th><th>Periodo</th><th>Máx. Niño 1+2</th><th>Máx. Niño 3.4</th>
-                <th>Inicio en la costa</th><th>Máx. lluvia costa norte</th>
+                <th>Inicio en la costa</th><th>Máx. lluvia costa norte<br><small>(4–6°S, 81–80°W)</small></th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -160,7 +163,7 @@
           <span class="num">3</span>
           <div>
             <h2>El mismo calentamiento, distinto impacto: depende del mes</h2>
-            <p>Para que llueva en la costa norte del Perú, el mar frente a la costa debe superar un umbral de
+            <p>Para que llueva en la costa norte del Perú (4–6°S, 81–80°W), el mar frente a la costa debe superar un umbral de
               temperatura (en estos datos, entre 26 y 27 °C). Eso solo es posible cuando la anomalía se suma al
               máximo estacional de <b>enero a abril</b>. En invierno, incluso una anomalía muy grande deja el
               mar por debajo del umbral.</p>
@@ -172,7 +175,7 @@
             <div class="panel-head">
               <div class="panel-title">
                 <h2>Ciclo anual de la SST en Niño 1+2</h2>
-                <span class="panel-date">Climatología 1980–2010 + anomalías</span>
+                <span class="panel-date">Climatología 1991–2020 + anomalías</span>
               </div>
             </div>
             <svg id="cicloAnual" role="img" aria-label="Ciclo anual de la SST en Niño 1+2 con umbral de convección"></svg>
@@ -182,7 +185,7 @@
           <div class="panel">
             <div class="panel-head">
               <div class="panel-title">
-                <h2>SST de Niño 1+2 vs lluvia en la costa norte</h2>
+                <h2>SST de Niño 1+2 vs lluvia en la costa norte (4–6°S, 81–80°W)</h2>
                 <span class="panel-date">Cada punto es un mes (1980–2026); color = mes del año</span>
               </div>
             </div>
@@ -198,7 +201,7 @@
               </div>
             </div>
             <svg id="barrasMes" role="img" aria-label="Anomalía de lluvia por mes cuando Niño 1+2 supera +2 °C"></svg>
-            <p class="nota">Costa norte: 4–6°S, 81–80°W (Tumbes–Piura). ERA5 tiende a sobreestimar la lluvia
+            <p class="nota">Costa norte: 4–6°S, 81–80°W (costa de Piura). ERA5 tiende a sobreestimar la lluvia
               climatológica en la costa desértica; las anomalías y el contraste entre meses son lo relevante.</p>
           </div>
         </div>
@@ -212,8 +215,10 @@
           <span class="num">4</span>
           <div>
             <h2>La huella de cada tipo en tres momentos del evento</h2>
-            <p>Mapas compuestos (promedio de los eventos de cada grupo) de anomalías respecto a 1980–2010.
-              <b>Año 0</b> es el año en que empieza el calentamiento. La última fila muestra el evento en curso.</p>
+            <p>Mapas compuestos (promedio de los eventos de cada grupo) de anomalías respecto a 1991–2020.
+              <b>Año 0</b> es el año en que empieza el calentamiento. La última fila muestra el evento en curso.
+              Bajo cada mapa: <b>N1+2</b> y <b>N3.4</b> (°C) y <b>Lluvia CN</b>, anomalía de lluvia en la costa norte
+              (4–6°S, 81–80°W, mm/día).</p>
           </div>
         </header>
 
@@ -277,7 +282,7 @@
             <div>
               <h3>Datos</h3>
               <p>Anomalías de SST, precipitación (ERA5), vapor de agua (ERA5) y viento a 10 m de SST Explorer,
-                respecto a la climatología mensual 1980–2010. Las cajas se promedian con peso cos(latitud).</p>
+                respecto a la climatología mensual 1991–2020. Las cajas se promedian con peso cos(latitud).</p>
               <h3>Detección de eventos</h3>
               <ul>
                 <li><b>Evento del Pacífico:</b> Niño 3.4 (media 3 meses) ≥ 0.5 °C durante 5 meses o más.</li>

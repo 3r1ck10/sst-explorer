@@ -6,7 +6,7 @@ Salida: docs/data/esquemas/nino.json con
   - series mensuales: Niño 1+2, 3, 3.4, 4 (anomalías), medias móviles de
     3 meses, SST absoluta de Niño 1+2, lluvia en la costa norte del Perú,
     índices E y C (Takahashi et al., 2011);
-  - climatología mensual 1980–2010 (SST Niño 1+2 y lluvia costa norte);
+  - climatología mensual 1991–2020 (SST Niño 1+2 y lluvia costa norte);
   - eventos detectados con reglas explícitas y su tipo;
   - mapas compuestos por tipo de evento (SST, precipitación, vapor y viento
     a 10 m) para tres momentos: verano de inicio (EFM año 0), invierno
@@ -31,7 +31,7 @@ warnings.filterwarnings("ignore", message="Mean of empty slice")
 sys.path.insert(0, str(Path(__file__).parent))
 from nino_comun import CAJAS, MESES, Datos, media_caja  # noqa: E402
 
-CLIMA = (1980, 2010)
+CLIMA = (1991, 2020)
 
 # Dominio de los mapas compuestos (Pacífico tropical).
 LAT_N, LAT_S = 30, -30
@@ -266,7 +266,7 @@ def main(carpeta):
               f"{'  [en curso]' if ev['enCurso'] else ''}")
 
     # ---------------------------------------------------------------
-    # 4) Viento a 10 m: climatología 1980–2010 y anomalías en el dominio
+    # 4) Viento a 10 m: climatología 1991–2020 y anomalías en el dominio
     # ---------------------------------------------------------------
     print("\nViento 10 m…", flush=True)
     paso_v = 4

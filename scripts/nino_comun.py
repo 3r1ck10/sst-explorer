@@ -19,7 +19,7 @@ class Datos:
         self.base = Path(carpeta_data)
         self.meta = json.loads((self.base / "metadata.json").read_text(encoding="utf-8"))
         self.capas = {}
-        for capa in ("precip", "vapor"):
+        for capa in ("precip", "vapor", "t2m"):
             ruta = self.base / capa / "metadata.json"
             if ruta.exists():
                 self.capas[capa] = json.loads(ruta.read_text(encoding="utf-8"))

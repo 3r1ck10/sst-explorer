@@ -48,7 +48,7 @@
 
       <div class="top-controls">
         <div class="seg" id="segVariable" role="radiogroup" aria-label="Variable">
-          <button type="button" data-value="anomaly" class="is-on" title="Anomalías respecto a 1980–2010 (SST, precipitación y vapor)">Anomalías</button>
+          <button type="button" data-value="anomaly" class="is-on" title="Anomalías respecto a 1991–2020 (SST, precipitación y vapor)">Anomalías</button>
           <button type="button" data-value="sst" title="Valores absolutos (SST, precipitación y vapor)">Valores absolutos</button>
         </div>
 
@@ -66,9 +66,14 @@
           <button type="button" data-value="clasica">Clásica</button>
         </div>
 
+        <a class="simple-link" href="pronosticos.html" title="Pronósticos estacionales de C3S comparados con lo observado">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 4 3 8-8M15 7h5v5"/></svg>
+          Pronósticos
+        </a>
+
         <a class="simple-link link-tipos" href="tipos-nino.html" title="Esquemas didácticos: tipos de El Niño e impacto en el Perú">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>
-          Tipos de El Niño
+          Análisis El Niño
         </a>
 
         <a class="simple-link" href="index-v1.html" title="Vista simple, con mapas planos y streamlines">
@@ -230,7 +235,7 @@
         </div>
         <details class="about">
           <summary>Acerca de los datos</summary>
-          <p>Las anomalías son desviaciones respecto a la climatología mensual 1980–2010. Toda la información es mensual: entre un mes y el siguiente la animación interpola de forma continua.</p>
+          <p>Las anomalías son desviaciones respecto a la climatología mensual 1991–2020. Toda la información es mensual: entre un mes y el siguiente la animación interpola de forma continua.</p>
           <p>El índice Niño 3.4 se calcula aquí, a partir de estos mismos mapas (promedio de la caja). Es una aproximación y puede diferir del ONI/RONI oficial.</p>
           <p>Navegación: arrastra para mover el mapa, rueda o pellizco para acercar. <kbd>Espacio</kbd> reproduce/pausa, <kbd>←</kbd> <kbd>→</kbd> cambian de mes.</p>
           <a class="ext-link" href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/" target="_blank" rel="noopener noreferrer">Años de El Niño y La Niña (NOAA) ↗</a>        </details>

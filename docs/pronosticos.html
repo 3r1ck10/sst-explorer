@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pronósticos estacionales · SST Explorer</title>
+  <meta name="description" content="Pronósticos estacionales de C3S (ECMWF, UK Met Office, Météo-France, DWD, CMCC) para 2026–2027 comparados con las observaciones de SST Explorer.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tipos-nino.css">
+  <link rel="stylesheet" href="pronosticos.css">
+</head>
+
+<body>
+  <div class="app esq">
+
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 40 40" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#5ad1ff"/>
+              <stop offset="1" stop-color="#ff8a4c"/>
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="url(#lg)" stroke-width="2.5"/>
+          <path d="M5 22c4-4 7-4 10 0s7 4 10 0 7-4 10 0" fill="none" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h1>Pronósticos estacionales</h1>
+          <p>Modelos de C3S frente a lo observado · 2026–2027</p>
+        </div>
+      </div>
+      <nav class="top-controls">
+        <a class="simple-link" href="tipos-nino.html">Análisis El Niño</a>
+        <a class="simple-link" href="index.html">← Volver al visualizador</a>
+      </nav>
+    </header>
+
+    <nav class="esq-indice" aria-label="Secciones">
+      <a href="#resumen">Pronóstico más reciente</a>
+      <a href="#animacion">1 · Animación</a>
+      <a href="#pluma">2 · Pluma de pronósticos</a>
+      <a href="#verificacion">3 · ¿Qué tan bien acertaron?</a>
+      <a href="#mapas">4 · Mapas</a>
+      <a href="#metodo">Método</a>
+    </nav>
+
+    <main class="esq-main">
+
+      <!-- ===================================================
+           RESUMEN
+           =================================================== -->
+      <section id="resumen" class="esq-sec">
+        <div class="actual-card pron-card">
+          <div class="actual-texto">
+            <span class="kicker" style="color:#5ad1ff">Pronóstico más reciente</span>
+            <h2 id="resTitulo">Cargando…</h2>
+            <p id="resTexto" class="lead"></p>
+            <p class="nota">Promedio y rango de los modelos de C3S (media de cada ensamble). Son pronósticos
+              experimentales mostrados con fines de análisis; <strong>no reemplazan</strong> los pronósticos
+              oficiales del ENFEN ni del SENAMHI.</p>
+          </div>
+          <div class="panel pron-tabla-wrap">
+            <table class="tabla pron-tabla" id="resTabla"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           1 · ANIMACIÓN
+           =================================================== -->
+      <section id="animacion" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">1</span>
+          <div>
+            <h2>Animación: de lo observado al pronóstico</h2>
+            <p>La animación recorre los últimos meses <b>observados</b> y continúa, sin corte, con los
+              <b>6 meses pronosticados</b> desde el inicio elegido. Entre un mes y el siguiente se interpola de
+              forma continua, como en el visualizador principal.</p>
+          </div>
+        </header>
+
+        <div class="pron-controles mapas-controles">
+          <div class="seg" id="segVarAnim" role="radiogroup" aria-label="Variable">
+            <button type="button" data-value="sst" class="is-on">SST</button>
+            <button type="button" data-value="precip">Precipitación</button>
+            <button type="button" data-value="vapor">Vapor de agua</button>
+            <button type="button" data-value="t2m">Temp. 2 m</button>
+          </div>
+          <label class="field"><span class="field-label">Modelo</span><select id="selModeloAnim"></select></label>
+          <label class="field"><span class="field-label">Inicio</span><select id="selInicioAnim"></select></label>
+          <label class="field"><span class="field-label">Meses observados antes</span>
+            <select id="selObsAnim">
+              <option value="0">Ninguno</option>
+              <option value="3">3</option>
+              <option value="6" selected>6</option>
+              <option value="9">9</option>
+            </select>
+          </label>
+          <div class="seg" id="segRegionAnim" role="radiogroup" aria-label="Región">
+            <button type="button" data-value="pacifico" class="is-on">Pacífico</button>
+            <button type="button" data-value="global">Global</button>
+          </div>
+        </div>
+
+        <div class="panel anim-panel">
+          <div class="anim-escenario">
+            <canvas id="animCanvas" aria-label="Animación del pronóstico"></canvas>
+            <div class="anim-hud">
+              <div class="anim-fecha" id="animFecha">—</div>
+              <div class="anim-tipo" id="animTipo">—</div>
+            </div>
+            <div class="anim-indices" id="animIndices"></div>
+            <div class="anim-cargando" id="animCargando" hidden>Cargando mapas…</div>
+          </div>
+          <div class="anim-barra">
+            <button type="button" class="play-btn anim-play" id="animPlay" aria-label="Reproducir">
+              <svg class="ico-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="ico-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+            </button>
+            <select id="animVel" aria-label="Velocidad" title="Velocidad">
+              <option value="0.5">0.5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+            </select>
+            <div class="anim-linea">
+              <input type="range" id="animRango" min="0" max="1" step="0.001" value="0" aria-label="Línea de tiempo de la animación">
+              <div class="anim-ticks" id="animTicks"></div>
+            </div>
+          </div>
+          <div class="huellas-leyenda pron-leyenda-mapa" id="leyendaAnim"></div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           2 · PLUMA
+           =================================================== -->
+      <section id="pluma" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">2</span>
+          <div>
+            <h2>Pluma de pronósticos y cómo fue cambiando</h2>
+            <p>La línea <b>blanca</b> es lo observado. Las líneas de colores son lo que pronosticó cada modelo
+              desde el <b>mes de inicio</b> elegido; la naranja gruesa es el promedio de los modelos y la banda,
+              su rango. Mueve el inicio para ver cómo cambiaron los pronósticos a medida que avanzaba el evento.</p>
+          </div>
+        </header>
+
+        <div class="pron-controles">
+          <label class="field">
+            <span class="field-label">Índice</span>
+            <select id="selIndice"></select>
+          </label>
+          <div class="field pron-inicio">
+            <span class="field-label">Mes de inicio del pronóstico: <b id="lblInicio">—</b></span>
+            <div class="pron-inicio-fila">
+              <button type="button" class="icon-btn" id="btnPlayInicio" title="Recorrer los inicios" aria-label="Recorrer los inicios">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <input type="range" id="rngInicio" min="0" max="0" value="0" step="1" aria-label="Mes de inicio">
+            </div>
+          </div>
+          <label class="huellas-viento">
+            <span class="switch"><input type="checkbox" id="chkAnteriores" checked><span class="switch-track"></span></span>
+            Mostrar inicios anteriores (promedio)
+          </label>
+        </div>
+
+        <div class="panel">
+          <div class="pron-leyenda" id="leyendaModelos"></div>
+          <svg id="graficoPluma" role="img" aria-label="Pluma de pronósticos del índice seleccionado"></svg>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           2 · VERIFICACIÓN
+           =================================================== -->
+      <section id="verificacion" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">3</span>
+          <div>
+            <h2>¿Qué tan bien acertaron? Pronóstico vs observado en 2026</h2>
+            <p>Para cada mes de 2026 que ya fue observado se compara lo pronosticado con lo ocurrido, según
+              cuántos meses antes se hizo el pronóstico (<b>lead</b>: 1 = el mismo mes del inicio, 6 = cinco
+              meses después). Es una muestra de un solo evento: indica cómo se comportaron los modelos en
+              este Niño, no su calidad general.</p>
+          </div>
+        </header>
+
+        <div class="pron-controles">
+          <div class="seg" id="segMetrica" role="radiogroup" aria-label="Métrica">
+            <button type="button" data-value="mae" class="is-on">Error medio absoluto</button>
+            <button type="button" data-value="sesgo">Sesgo medio (pron. − obs.)</button>
+          </div>
+          <label class="huellas-viento" title="Las anomalías de C3S se calculan respecto a la climatología de cada modelo (hindcast). Esta opción refiere lo observado a 1993–2016 en lugar de 1991–2020 (solo índices de SST).">
+            <span class="switch"><input type="checkbox" id="chkAjuste"><span class="switch-track"></span></span>
+            Referir lo observado a 1993–2016
+          </label>
+          <span class="nota" id="notaIndiceVerif"></span>
+        </div>
+
+        <div class="verif-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2 id="tituloError">Error según el lead time</h2>
+                <span class="panel-date" id="subError"></span>
+              </div>
+            </div>
+            <svg id="graficoError" role="img" aria-label="Error de los pronósticos según el lead time"></svg>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">
+                <h2>Matriz inicio × mes pronosticado</h2>
+                <span class="panel-date">Número = valor pronosticado; color = error frente a lo observado</span>
+              </div>
+              <select id="selModeloMatriz" aria-label="Modelo de la matriz"></select>
+            </div>
+            <div class="matriz-wrap"><table class="matriz" id="matriz"></table></div>
+            <div class="matriz-leyenda" id="matrizLeyenda"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           3 · MAPAS
+           =================================================== -->
+      <section id="mapas" class="esq-sec">
+        <header class="esq-head">
+          <span class="num">4</span>
+          <div>
+            <h2>Mapas: pronóstico, observado y diferencia</h2>
+            <p>Elige variable, modelo, mes de inicio y mes pronosticado. Si ese mes ya fue observado se muestra
+              también lo ocurrido (datos de SST Explorer) y la diferencia pronóstico − observado.</p>
+          </div>
+        </header>
+
+        <div class="pron-controles mapas-controles">
+          <div class="seg" id="segVarMapa" role="radiogroup" aria-label="Variable">
+            <button type="button" data-value="sst" class="is-on">SST</button>
+            <button type="button" data-value="precip">Precipitación</button>
+            <button type="button" data-value="vapor">Vapor de agua</button>
+            <button type="button" data-value="t2m">Temp. 2 m</button>
+          </div>
+          <label class="field"><span class="field-label">Modelo</span><select id="selModeloMapa"></select></label>
+          <label class="field"><span class="field-label">Inicio</span><select id="selInicioMapa"></select></label>
+          <label class="field"><span class="field-label">Mes pronosticado</span><select id="selLeadMapa"></select></label>
+          <div class="seg" id="segRegion" role="radiogroup" aria-label="Región">
+            <button type="button" data-value="pacifico" class="is-on">Pacífico</button>
+            <button type="button" data-value="global">Global</button>
+          </div>
+        </div>
+        <div class="huellas-leyenda pron-leyenda-mapa" id="leyendaMapa"></div>
+
+        <div class="mapas-grid">
+          <div class="panel mapa-panel">
+            <div class="panel-head"><div class="panel-title"><h2 id="tMapaFc">Pronóstico</h2><span class="panel-date" id="sMapaFc"></span></div></div>
+            <canvas id="mapaFc"></canvas>
+          </div>
+          <div class="panel mapa-panel">
+            <div class="panel-head"><div class="panel-title"><h2>Observado</h2><span class="panel-date" id="sMapaObs"></span></div></div>
+            <canvas id="mapaObs"></canvas>
+            <div class="mapa-vacio" id="vacioObs" hidden></div>
+          </div>
+          <div class="panel mapa-panel">
+            <div class="panel-head"><div class="panel-title"><h2>Pronóstico − observado</h2><span class="panel-date" id="sMapaDif"></span></div></div>
+            <canvas id="mapaDif"></canvas>
+            <div class="mapa-vacio" id="vacioDif" hidden></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================
+           MÉTODO
+           =================================================== -->
+      <section id="metodo" class="esq-sec">
+        <details class="about metodo" open>
+          <summary>Datos, método y limitaciones</summary>
+          <div class="metodo-cols">
+            <div>
+              <h3>Pronósticos</h3>
+              <p>Anomalías mensuales de la media del ensamble de los sistemas estacionales de C3S
+                (Copernicus Climate Change Service): <span id="listaModelos"></span>.
+                Variables: SST, precipitación (tasa media, convertida a mm/día), vapor de agua en la columna
+                y temperatura a 2 m. Rejilla de 1°.</p>
+              <h3>Lead time</h3>
+              <p>El mes 1 es el mismo mes del inicio (un pronóstico iniciado el 1 de octubre tiene como mes 1
+                a octubre y como mes 6 a marzo).</p>
+              <h3>Observaciones</h3>
+              <p>Las anomalías observadas son las de SST Explorer, referidas a 1991–2020. Los índices usan
+                las mismas cajas que el resto del sitio (Niño 1+2, 3, 3.4, 4 y costa norte: 4–6°S, 81–80°W).</p>
+            </div>
+            <div>
+              <h3>Limitaciones</h3>
+              <ul>
+                <li>Las anomalías de C3S se calculan respecto a la climatología de cada modelo en su periodo
+                  de hindcast; conviene verificar ese periodo en la documentación de C3S. Con estos datos, la
+                  diferencia entre referir lo observado a 1993–2016 o a 1991–2020 es de hasta
+                  <span id="desfaseMax">0.1</span> °C en Niño 3.4.</li>
+                <li>La verificación usa solo los meses de 2026 ya observados: es un caso, no una medida
+                  general de la habilidad de los modelos.</li>
+                <li>Las observaciones (SST Explorer / ERA5) y los modelos usan productos y rejillas distintos;
+                  parte de la diferencia es propia de los datos.</li>
+                <li>La temperatura a 2 m observada es ERA5 (anomalías respecto a 1991–2020), procesada igual que la
+                  precipitación y el vapor; en la costa norte puede reflejar tanto el mar como el desierto costero.</li>
+                <li>Se usa la media del ensamble: no se muestra la dispersión entre miembros de cada modelo.</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <footer class="esq-footer">
+      <p>SST Explorer · Pronósticos procesados con <code>scripts/generar_pronosticos.py</code>.</p>
+    </footer>
+  </div>
+
+  <div id="tooltip" class="tooltip" hidden></div>
+  <script src="pronosticos.js"></script>
+</body>
+</html>

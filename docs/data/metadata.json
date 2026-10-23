@@ -2,22 +2,23 @@
   "variable": "sst",
   "units": "°C",
   "climatologia": {
-    "periodo": "1980-2010",
+    "periodo": "1991-2020",
     "metodo": "monthly_calendar_month_mean",
     "years_used_by_month": {
-      "1": 31,
-      "2": 31,
-      "3": 31,
-      "4": 31,
-      "5": 31,
-      "6": 31,
-      "7": 31,
-      "8": 31,
-      "9": 31,
-      "10": 31,
-      "11": 31,
-      "12": 31
-    }
+      "1": 30,
+      "2": 30,
+      "3": 30,
+      "4": 30,
+      "5": 30,
+      "6": 30,
+      "7": 30,
+      "8": 30,
+      "9": 30,
+      "10": 30,
+      "11": 30,
+      "12": 30
+    },
+    "nota": "Anomalías re-referenciadas desde la climatología original 1980-2010 restando la media mensual de 1991-2020 (scripts/cambiar_climatologia_sst.py)."
   },
   "interpolaciones_por_mes": 10,
   "factor_reduccion": 2,

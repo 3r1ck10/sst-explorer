@@ -170,7 +170,7 @@ function renderActual() {
     { l: 'Índice E (Pacífico este)', v: fmt(s.E[last], 2), sub: 'adimensional', c: s.E[last] >= 1 },
     { l: 'Índice C (Pacífico central)', v: fmt(s.C[last], 2), sub: 'adimensional', c: s.C[last] >= 1 },
     { l: 'SST absoluta Niño 1+2', v: `${fmt(s.sst12[last], 1, false)} °C`, sub: `normal en ${MESES[ma]}: ${fmt(D.clima.sst12[ma], 1, false)} °C` },
-    { l: 'Lluvia costa norte (anomalía)', v: `${fmt(s.lluviaAnom[last])} mm/d`, sub: 'Tumbes–Piura, mes actual' }
+    { l: 'Lluvia costa norte (anomalía)', v: `${fmt(s.lluviaAnom[last])} mm/d`, sub: '4–6°S, 81–80°W · mes actual' }
   ];
   $('actualKpis').innerHTML = kpis.map((k) => `
     <div class="kpi ${k.c ? 'calido' : ''}">
@@ -292,7 +292,7 @@ function renderTipos() {
     {
       tipo: 'central', nombre: D.grupos.central.nombre,
       texto: D.grupos.central.resumen + ' La convección se desplaza al Pacífico central y se forman dos celdas de circulación.',
-      impacto: 'Poca lluvia extra en la costa norte, salvo que la costa también se caliente en verano (como en marzo de 1992).'
+      impacto: 'Poca lluvia extra en la costa norte, salvo que la costa también se caliente en verano (como en el verano de 1992).'
     },
     {
       tipo: 'costero', nombre: D.grupos.costero.nombre,
@@ -724,7 +724,7 @@ function renderUmbral() {
     const i = ev.target.dataset.i;
     if (i === undefined) { tip.hide(); return; }
     tip.show(`<b>${etiqueta(Number(i))}</b><br>SST Niño 1+2: ${fmt(s.sst12[i], 1, false)} °C (anom. ${fmt(s.nino12[i])})<br>
-      Lluvia costa norte: ${fmt(s.lluvia[i], 1, false)} mm/día (anom. ${fmt(s.lluviaAnom[i])})`, ev.clientX, ev.clientY);
+      Lluvia costa norte (4–6°S, 81–80°W): ${fmt(s.lluvia[i], 1, false)} mm/día (anom. ${fmt(s.lluviaAnom[i])})`, ev.clientX, ev.clientY);
   };
   svg.onmouseleave = () => tip.hide();
 
@@ -996,7 +996,7 @@ function renderHuellas() {
         <div class="celda-pie">
           <span>N1+2 <b>${fmt(comp.nino12)}</b></span>
           <span>N3.4 <b>${fmt(comp.nino34)}</b></span>
-          <span>Lluvia CN <b>${fmt(comp.lluvia)}</b></span>
+          <span title="Anomalía de lluvia en la costa norte (4–6°S, 81–80°W), mm/día">Lluvia CN <b>${fmt(comp.lluvia)}</b></span>
         </div>
       </div>`;
     });
@@ -1152,7 +1152,7 @@ function renderEvolucion() {
 
 function renderMetodo() {
   $('reglasTipos').innerHTML = ORDEN.map((g) => `<li><b style="color:${TIPOS[g].color}">${D.grupos[g].nombre}:</b> ${D.grupos[g].regla}</li>`).join('') +
-    `<li>Índices E y C: EOF de anomalías de SST en 10°S–10°N, 120°E–80°W (1980–2010); E = (PC1 − PC2)/√2, C = (PC1 + PC2)/√2.
+    `<li>Índices E y C: EOF de anomalías de SST en 10°S–10°N, 120°E–80°W (${D.climatologia.replace('-', '–')}); E = (PC1 − PC2)/√2, C = (PC1 + PC2)/√2.
       Control con estos datos: corr(E, Niño 1+2) = ${D.controlEC.E_nino12.toFixed(2)}, corr(C, Niño 4) = ${D.controlEC.C_nino4.toFixed(2)}.</li>`;
 }
 

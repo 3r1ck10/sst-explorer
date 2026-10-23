@@ -4,7 +4,7 @@
   "fuente": "ERA5 (medias mensuales)",
   "variable_nc": "tcwv",
   "unidades": "kg/m²",
-  "climatologia": "1980-2010",
+  "climatologia": "1991-2020",
   "rejilla": {
     "ancho": 360,
     "alto": 181,
@@ -77,5 +77,6 @@
       "type": "signed-linear",
       "max": 30.0
     }
-  }
+  },
+  "nota_climatologia": "Anomalías re-referenciadas desde la climatología original 1980-2010 restando la media mensual de 1991-2020 (scripts/cambiar_climatologia_capas.py)."
 }

@@ -1,0 +1,264 @@
+/* =========================================================
+   PRONÓSTICOS · complementa style.css y tipos-nino.css
+   ========================================================= */
+
+.pron-card {
+  border-color: rgba(90, 209, 255, 0.35);
+  background:
+    radial-gradient(600px 240px at 0% 0%, rgba(90, 209, 255, 0.14), transparent 70%),
+    var(--surface);
+}
+
+.pron-card { grid-template-columns: 1fr; }
+.pron-card .actual-texto { max-width: 1000px; }
+
+.pron-tabla-wrap { overflow-x: auto; padding: 8px; }
+.pron-tabla { min-width: 640px; }
+
+.mapa-panel canvas[hidden] { display: none; }
+
+.mapa-vacio button {
+  margin-top: 10px;
+  padding: 7px 12px;
+  border: 1px solid rgba(90, 209, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(90, 209, 255, 0.1);
+  color: var(--accent);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.pron-tabla th, .pron-tabla td { text-align: center; padding: 6px 8px; }
+.pron-tabla th:first-child, .pron-tabla td:first-child { text-align: left; }
+.pron-tabla td b { display: block; font-family: var(--mono); font-size: 0.95rem; }
+.pron-tabla td small { color: var(--faint); font-family: var(--mono); font-size: 0.66rem; }
+.pron-tabla td.calido b { color: #ff9a7a; }
+.pron-tabla td.frio b { color: #7cc4ff; }
+.pron-tabla td.humedo b { color: #5aa7ff; }
+.pron-tabla td.seco b { color: #d4a35a; }
+
+.pron-controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 22px;
+  margin-bottom: 14px;
+}
+
+.pron-inicio { flex: 1 1 320px; min-width: 260px; }
+.pron-inicio .field-label b { color: var(--text); font-family: var(--mono); letter-spacing: 0; }
+.pron-inicio-fila { display: flex; align-items: center; gap: 10px; }
+
+#rngInicio {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.pron-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.pron-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.pron-leyenda i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
+
+#graficoPluma { width: 100%; height: 400px; display: block; }
+
+.verif-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 14px;
+}
+
+#graficoError { width: 100%; height: 330px; display: block; }
+
+.matriz-wrap { overflow-x: auto; }
+
+.matriz {
+  border-collapse: separate;
+  border-spacing: 2px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+
+.matriz th {
+  color: var(--muted);
+  font-weight: 600;
+  padding: 3px 4px;
+  white-space: nowrap;
+}
+
+.matriz td {
+  min-width: 40px;
+  height: 26px;
+  padding: 0 4px;
+  border-radius: 4px;
+  text-align: center;
+  color: #e9f0fb;
+  white-space: nowrap;
+}
+
+.matriz td.futuro {
+  background: transparent !important;
+  border: 1px dashed rgba(150, 175, 210, 0.25);
+  color: var(--muted);
+}
+
+.matriz tr.fila-obs td { background: rgba(255, 255, 255, 0.08); font-weight: 700; }
+.matriz tr.fila-obs th { color: #fff; }
+
+.matriz-leyenda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.matriz-leyenda .legend-bar { width: 180px; }
+
+.mapas-controles .field select { min-width: 150px; }
+.pron-leyenda-mapa { margin-bottom: 12px; max-width: 640px; }
+
+.mapas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mapa-panel { position: relative; }
+.mapa-panel canvas { width: 100%; height: auto; display: block; border-radius: 6px; cursor: crosshair; }
+
+.mapa-vacio {
+  display: grid;
+  place-items: center;
+  min-height: 140px;
+  padding: 12px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.mapa-vacio[hidden] { display: none; }
+
+/* ---------- Animación ---------- */
+
+.anim-panel { padding: 12px; }
+/* El panel es flex en columna: la leyenda no debe estirarse (heredaba flex: 1 1 320px). */
+.anim-panel .pron-leyenda-mapa { flex: none; margin: 10px 0 0; }
+
+.anim-escenario {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #070d18;
+}
+
+#animCanvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+
+.anim-hud {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(6, 10, 18, 0.72);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+.anim-fecha { font-size: 1.35rem; font-weight: 700; font-family: var(--mono); }
+
+.anim-tipo {
+  margin-top: 2px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.anim-tipo.obs { color: #e9f0fb; }
+.anim-tipo.fc { color: #ff8a4c; }
+
+.anim-indices {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.anim-indices div {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(6, 10, 18, 0.72);
+  backdrop-filter: blur(6px);
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.anim-indices b { display: block; font-family: var(--mono); font-size: 1.05rem; color: var(--text); }
+
+.anim-cargando {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(6, 10, 18, 0.55);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.anim-cargando[hidden] { display: none; }
+
+.anim-barra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.anim-play { width: 40px; height: 40px; flex: 0 0 auto; }
+.anim-play svg { width: 17px; height: 17px; }
+
+.anim-linea { position: relative; flex: 1; padding-bottom: 18px; }
+
+#animRango { width: 100%; margin: 0; accent-color: var(--accent); cursor: pointer; }
+
+.anim-ticks { position: absolute; left: 8px; right: 8px; top: 20px; height: 16px; pointer-events: none; }
+
+.anim-ticks span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  white-space: nowrap;
+}
+
+.anim-ticks span.obs { color: var(--muted); }
+.anim-ticks span.fc { color: #ff8a4c; }
+
+.anim-ticks .corte {
+  position: absolute;
+  top: -22px;
+  height: 22px;
+  border-left: 2px dashed #ff8a4c;
+  transform: none;
+}
+
+@media (max-width: 1150px) {
+  .verif-grid, .mapas-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 700px) {
+  .anim-indices { top: auto; bottom: 8px; }
+  .anim-fecha { font-size: 1rem; }
+}

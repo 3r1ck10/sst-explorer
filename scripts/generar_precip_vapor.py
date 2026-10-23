@@ -9,7 +9,7 @@ Lee los NetCDF mensuales de ERA5 y escribe PNG en escala de grises
     docs/data/vapor/total/{año}/{MM}.png       vapor de agua (kg/m²)
     docs/data/vapor/anomaly/{año}/{MM}.png     anomalía de vapor de agua
 
-- Las anomalías se calculan respecto a la climatología mensual 1980–2010
+- Las anomalías se calculan respecto a la climatología mensual 1991–2020
   (mismo periodo que la SST).
 - Rejilla de 1° (360 × 181): longitud 0..359, latitud 90..-90. Se suaviza
   con un filtro [1, 2, 1] antes de submuestrear para evitar aliasing.
@@ -19,8 +19,12 @@ Lee los NetCDF mensuales de ERA5 y escribe PNG en escala de grises
     signed-linear g = 128 + 127 · v / max
     signed-sqrt   g = 128 + 127 · signo(v) · √(|v| / max)
 
+También procesa la temperatura a 2 m (docs/data/t2m/..., en °C).
+
 Uso (desde la carpeta del proyecto):
-    python scripts/generar_precip_vapor.py docs/total_precipitation.nc docs/water_vapor.nc docs/data
+    python scripts/generar_precip_vapor.py total_precipitation.nc water_vapor.nc docs/data
+    python scripts/generar_precip_vapor.py t2m=era5_t2m_pagina.nc docs/data
+    python scripts/generar_precip_vapor.py precip=tp.nc vapor=tcwv.nc t2m=t2m.nc docs/data
 """
 
 import json
@@ -32,8 +36,8 @@ import xarray as xr
 from PIL import Image
 
 ANIO_INICIO = 1980
-CLIMA_INICIO = 1980
-CLIMA_FIN = 2010
+CLIMA_INICIO = 1991
+CLIMA_FIN = 2020
 PASO = 4  # 0.25° → 1°
 
 CAPAS = {
@@ -52,6 +56,15 @@ CAPAS = {
         "nombre": "Vapor de agua en la columna",
         "total": {"type": "linear", "min": 0.0, "max": 75.0},
         "anomaly": {"type": "signed-linear", "max": 30.0},
+    },
+    "t2m": {
+        "variable_nc": "t2m",
+        "factor": 1.0,
+        "offset": -273.15,  # K → °C
+        "unidades": "°C",
+        "nombre": "Temperatura del aire a 2 m",
+        "total": {"type": "linear", "min": -70.0, "max": 50.0},
+        "anomaly": {"type": "signed-linear", "max": 15.0},
     },
 }
 
@@ -116,14 +129,14 @@ def procesar(nombre, archivo_nc, salida):
         sel = indices[inicio:inicio + bloque]
         datos = da.isel(valid_time=slice(int(sel[0]), int(sel[-1]) + 1)).values
         for k, i in enumerate(sel):
-            x = datos[k].astype(np.float64) * cfg["factor"]
+            x = datos[k].astype(np.float64) * cfg["factor"] + cfg.get("offset", 0.0)
             campos[(int(anios[i]), int(meses[i]))] = suavizar_submuestrear(x, PASO).astype(np.float32)
         print(f"  {nombre}: leídos hasta {anios[sel[-1]]}-{meses[sel[-1]] + 1:02d}", flush=True)
         del datos
 
     alto, ancho = next(iter(campos.values())).shape
 
-    # 2) Climatología mensual 1980–2010.
+    # 2) Climatología mensual 1991–2020.
     clima = []
     for m in range(12):
         sel = [campos[(a, m)] for a in range(CLIMA_INICIO, CLIMA_FIN + 1) if (a, m) in campos]
@@ -158,9 +171,19 @@ def procesar(nombre, archivo_nc, salida):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    args = sys.argv[1:]
+    # Forma nueva: capa=archivo.nc ... carpeta_salida   (p. ej. t2m=era5_t2m.nc docs/data)
+    if len(args) >= 2 and all("=" in a for a in args[:-1]):
+        salida = Path(args[-1])
+        for par in args[:-1]:
+            capa, archivo = par.split("=", 1)
+            if capa not in CAPAS:
+                sys.exit(f"Capa desconocida: {capa} (opciones: {', '.join(CAPAS)})")
+            procesar(capa, archivo, salida)
+    # Forma original: precipitación vapor salida
+    elif len(args) == 3:
+        procesar("precip", args[0], Path(args[2]))
+        procesar("vapor", args[1], Path(args[2]))
+    else:
         print(__doc__)
         sys.exit(1)
-    precip_nc, vapor_nc, salida = sys.argv[1], sys.argv[2], Path(sys.argv[3])
-    procesar("precip", precip_nc, salida)
-    procesar("vapor", vapor_nc, salida)
